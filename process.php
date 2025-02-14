@@ -495,40 +495,120 @@ if (isset($_POST['upload_csv']) && !empty($_FILES['csv_file'])) {
 
 
 
+// if (!empty($_POST['csv_column'])) {
+//     // Extract unique states and their counts from the uploaded file
+//     $stateIndex = array_search($_POST['csv_column'], $_SESSION['headers']);
+//     $uniqueStates = [];
+//     $groupedStates = []; // To store states grouped alphabetically
+//     $usa_state_only = fetchStatesData(); // Fetch the predefined states data
+
+//     if ($stateIndex !== false) {
+//         $stateCounts = []; // Array to store state counts
+//         foreach ($_SESSION['csvData'] as $index => $row) {
+//             if ($index === 0) continue; // Skip the header row
+//             $state = trim($row[$stateIndex]); // Trim whitespace
+//             if (!empty($state)) {
+//                 $stateCounts[$state] = ($stateCounts[$state] ?? 0) + 1;
+//             }
+//         }
+
+//         // Create a lookup array for valid USA states (case-insensitive)
+//         $validStatesLookup = [];
+//         foreach ($usa_state_only as $key => $value) {
+//             $validStatesLookup[strtolower($key)] = true; // Abbreviation (e.g., "FL")
+//             $validStatesLookup[strtolower($value)] = true; // Full name (e.g., "Florida")
+//             $validStatesLookup[strtolower("$value, $key")] = true; // Combined format (e.g., "Florida, FL")
+//             $validStatesLookup[strtolower("$key, $value")] = true; // Reverse combined format (e.g., "FL, Florida")
+//         }
+
+//         // Group states alphabetically or into "Symbols & Numbers"
+//         foreach ($stateCounts as $state => $count) {
+//             $stateName = strtolower(trim($state));
+//             $firstChar = strtoupper($stateName[0] ?? '');
+
+//             // Check if the state is valid
+//             $isValidState = isset($validStatesLookup[$stateName]);
+
+//             if ($isValidState && ctype_alpha($firstChar)) {
+//                 // Add to alphabetical group
+//                 $groupedStates[$firstChar][] = $state . " (" . $count . ")";
+//             } else {
+//                 // Add to "Symbols & Numbers" group
+//                 $groupedStates['symbols'][] = $state . " (" . $count . ")";
+//             }
+//         }
+
+//         // Sort each group alphabetically
+//         foreach ($groupedStates as $group => &$states) {
+//             sort($states, SORT_STRING | SORT_FLAG_CASE);
+//         }
+//         unset($states); // Break reference
+
+//         // Ensure "Symbols & Numbers" group is at the end
+//         if (isset($groupedStates['symbols'])) {
+//             $symbolsGroup = $groupedStates['symbols'];
+//             unset($groupedStates['symbols']); // Remove symbols group temporarily
+//             ksort($groupedStates); // Sort remaining groups alphabetically
+//             $groupedStates['symbols'] = $symbolsGroup; // Add symbols group back at the end
+//         } else {
+//             ksort($groupedStates); // Sort all groups alphabetically
+//         }
+
+//         // Store the selected column, format, and grouped states in session
+//         $_SESSION['csv_column'] = $_POST['csv_column'];
+//         $_SESSION['state_format_select'] = $_POST['state_format_select'];
+//         $_SESSION['groupedStates'] = $groupedStates; // Store grouped states
+//         $_SESSION['States_formats'] = formatStatesArray($_POST['state_format_select']);
+//     }
+// }
+
+
 if (!empty($_POST['csv_column'])) {
     // Extract unique states and their counts from the uploaded file
     $stateIndex = array_search($_POST['csv_column'], $_SESSION['headers']);
     $uniqueStates = [];
     $groupedStates = []; // To store states grouped alphabetically
+    $invalidStatesRows = []; // To store rows for invalid states
     $usa_state_only = fetchStatesData(); // Fetch the predefined states data
 
     if ($stateIndex !== false) {
+        // Get the header row (first row of the CSV)
+        $headerRow = $_SESSION['csvData'][0];
+
         $stateCounts = []; // Array to store state counts
         foreach ($_SESSION['csvData'] as $index => $row) {
             if ($index === 0) continue; // Skip the header row
             $state = trim($row[$stateIndex]); // Trim whitespace
             if (!empty($state)) {
                 $stateCounts[$state] = ($stateCounts[$state] ?? 0) + 1;
+
+                // Check if the state is valid
+                $stateName = strtolower(trim($state));
+                $validStatesLookup = [];
+                foreach ($usa_state_only as $key => $value) {
+                    $validStatesLookup[strtolower($key)] = true; // Abbreviation (e.g., "FL")
+                    $validStatesLookup[strtolower($value)] = true; // Full name (e.g., "Florida")
+                    $validStatesLookup[strtolower("$value, $key")] = true; // Combined format (e.g., "Florida, FL")
+                    $validStatesLookup[strtolower("$key, $value")] = true; // Reverse combined format (e.g., "FL, Florida")
+                }
+
+                // If the state is not valid, add the entire row to invalidStatesRows
+                if (!isset($validStatesLookup[$stateName])) {
+                    // Add the header row first if this is the first invalid row for this state
+                    if (!isset($invalidStatesRows[$state])) {
+                        $invalidStatesRows[$state] = [$headerRow];
+                    }
+                    $invalidStatesRows[$state][] = $row;
+                }
             }
         }
 
-        // Create a lookup array for valid USA states (case-insensitive)
-        $validStatesLookup = [];
-        foreach ($usa_state_only as $key => $value) {
-            $validStatesLookup[strtolower($key)] = true; // Abbreviation (e.g., "FL")
-            $validStatesLookup[strtolower($value)] = true; // Full name (e.g., "Florida")
-            $validStatesLookup[strtolower("$value, $key")] = true; // Combined format (e.g., "Florida, FL")
-            $validStatesLookup[strtolower("$key, $value")] = true; // Reverse combined format (e.g., "FL, Florida")
-        }
-
-        // Group states alphabetically or into "Symbols & Numbers"
+        // Group valid states alphabetically or into "Symbols & Numbers"
         foreach ($stateCounts as $state => $count) {
             $stateName = strtolower(trim($state));
             $firstChar = strtoupper($stateName[0] ?? '');
-
             // Check if the state is valid
             $isValidState = isset($validStatesLookup[$stateName]);
-
             if ($isValidState && ctype_alpha($firstChar)) {
                 // Add to alphabetical group
                 $groupedStates[$firstChar][] = $state . " (" . $count . ")";
@@ -559,11 +639,12 @@ if (!empty($_POST['csv_column'])) {
         $_SESSION['state_format_select'] = $_POST['state_format_select'];
         $_SESSION['groupedStates'] = $groupedStates; // Store grouped states
         $_SESSION['States_formats'] = formatStatesArray($_POST['state_format_select']);
+
+        // Encode invalid states and their rows into a JSON array
+        $_SESSION['invalidStatesJson'] = json_encode($invalidStatesRows);
     }
+    // print_r($_SESSION['invalidStatesJson']); die;
 }
-
-
-
 
 
 
@@ -927,7 +1008,9 @@ if (isset($_POST['reset'])) {
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
     <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+   
+   <style>
         .table-container {
             max-height: 400px;
             overflow-y: auto;
@@ -1041,6 +1124,7 @@ if (!isset($_SESSION['groupedStates']) || empty($_SESSION['groupedStates'])) {
 }
 ?>
 
+
 <form method="post" class="mb-4 text-center">
     <div id="mappingFields" class="mb-4">
         <div class="accordion" id="stateDropdownAccordion">
@@ -1057,7 +1141,7 @@ if (!isset($_SESSION['groupedStates']) || empty($_SESSION['groupedStates'])) {
                                 data-bs-target="#collapse<?php echo $groupId; ?>" 
                                 aria-expanded="<?php echo $isFirstGroup ? 'true' : 'false'; ?>" 
                                 aria-controls="collapse<?php echo $groupId; ?>">
-                            <?php echo ($group === 'symbols') ? ' Not Valid USA State' : "Group $group"; ?>
+                            <?php echo ($group === 'symbols') ? 'Not Valid USA States' : "Group $group"; ?>
                         </button>
                     </h2>
                     <div id="collapse<?php echo $groupId; ?>" 
@@ -1067,36 +1151,80 @@ if (!isset($_SESSION['groupedStates']) || empty($_SESSION['groupedStates'])) {
                         <div class="accordion-body">
                             <?php foreach ($states as $state): ?>
                                 <div class="row mb-3 state-mapping-row" data-state="<?php echo htmlspecialchars($state); ?>">
-                                    <div class="col-md-12 d-flex align-items-center">
-                                        <label for="state-<?php echo htmlspecialchars($state); ?>" class="me-2 visually-hidden">State</label>
-                                        <input type="text" class="form-control me-2" readonly 
-                                               id="state-<?php echo htmlspecialchars($state); ?>" 
-                                               value="<?php echo htmlspecialchars($state); ?>">
-                                        <?php if ($group === 'symbols'): ?>
-                                            <!-- Dropdown for Symbols & Numbers group -->
-                                            <select class="form-select state-select" name="state_mapping[<?php echo htmlspecialchars($state); ?>]" 
-                                                    aria-label="Select Correct State" >
-                                                <option value="">Select Correct State</option>
-                                                <option value="mark_bad_data">Mark Bad Data</option>
-                                                <option value="enter_manually">Enter Manually</option>
-                                                <?php foreach ($_SESSION['States_formats'] as $status): ?>
-                                                    <option value="<?php echo htmlspecialchars($status); ?>">
-                                                        <?php echo htmlspecialchars($status); ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                        <?php else: ?>
-                                            <!-- Dropdown for other groups -->
-                                            <select class="form-select" name="state_mapping[<?php echo htmlspecialchars($state); ?>]" 
-                                                    aria-label="Select Correct State">
-                                                <option value="">Select Correct State</option>
-                                                <?php foreach ($_SESSION['States_formats'] as $status): ?>
-                                                    <option value="<?php echo htmlspecialchars($status); ?>">
-                                                        <?php echo htmlspecialchars($status); ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                        <?php endif; ?>
+                                    <div class="col-md-12 d-flex flex-column align-items-start">
+                                        <!-- Dropdown and Eye Icon -->
+                                        <div class="d-flex align-items-center w-100 mb-2">
+                                            <label for="state-<?php echo htmlspecialchars($state); ?>" class="me-2 visually-hidden">State</label>
+                                            <input type="text" class="form-control me-2" readonly 
+                                                   id="state-<?php echo htmlspecialchars($state); ?>" 
+                                                   value="<?php echo htmlspecialchars($state); ?>">
+                                            <?php if ($group === 'symbols'): ?>
+                                                <!-- Dropdown for Symbols & Numbers group -->
+                                                <select class="form-select state-select" name="state_mapping[<?php echo htmlspecialchars($state); ?>]" 
+                                                        aria-label="Select Correct State">
+                                                    <option value="">Select Correct State</option>
+                                                    <option value="mark_bad_data">Mark Bad Data</option>
+                                                    <option value="enter_manually">Enter Manually</option>
+                                                    <?php foreach ($_SESSION['States_formats'] as $status): ?>
+                                                        <option value="<?php echo htmlspecialchars($status); ?>">
+                                                            <?php echo htmlspecialchars($status); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+
+                                                <!-- Eye Icon for Invalid States -->
+                                                <i class="bi bi-eye ms-2 cursor-pointer toggle-table" 
+                                                   data-state="<?php echo htmlspecialchars($state); ?>" 
+                                                   style="font-size: 1.2rem;"></i>
+                                            <?php else: ?>
+                                                <!-- Dropdown for other groups -->
+                                                <select class="form-select" name="state_mapping[<?php echo htmlspecialchars($state); ?>]" 
+                                                        aria-label="Select Correct State">
+                                                    <option value="">Select Correct State</option>
+                                                    <?php foreach ($_SESSION['States_formats'] as $status): ?>
+                                                        <option value="<?php echo htmlspecialchars($status); ?>">
+                                                            <?php echo htmlspecialchars($status); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <!-- Scrollable Container for Table -->
+                                        <div class="w-100 invalid-state-table-container" id="table-container-<?php echo htmlspecialchars($state); ?>" style="display: none; max-width: 100%; overflow-x: auto;">
+                                            <table class="table table-bordered" style="width: auto; min-width: 100%;">
+                                                <thead>
+                                                    <tr>
+                                                        <?php
+                                                        // Extract headers from the CSV file
+                                                        $headers = $_SESSION['csvData'][0];
+                                                        foreach ($headers as $header):
+                                                        ?>
+                                                            <th><?php echo htmlspecialchars($header); ?></th>
+                                                        <?php endforeach; ?>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php
+                                                    // Decode the invalid states JSON and find rows for this state
+                                                    $invalidStatesJson = json_decode($_SESSION['invalidStatesJson'], true);
+                                                    $stateName = trim(explode(" (", $state)[0]); // Extract state name from "State (Count)"
+                                                    if (isset($invalidStatesJson[$stateName])) {
+                                                        foreach ($invalidStatesJson[$stateName] as $index => $row):
+                                                            if ($index === 0) continue; // Skip header row
+                                                    ?>
+                                                            <tr>
+                                                                <?php foreach ($row as $cell): ?>
+                                                                    <td><?php echo htmlspecialchars($cell); ?></td>
+                                                                <?php endforeach; ?>
+                                                            </tr>
+                                                    <?php
+                                                        endforeach;
+                                                    }
+                                                    ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -1111,6 +1239,34 @@ if (!isset($_SESSION['groupedStates']) || empty($_SESSION['groupedStates'])) {
     </div>
     <button type="submit" name="state_mapping_submit" class="btn btn-primary">Save Mapping</button>
 </form>
+
+<!-- Include Bootstrap Icons CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+<!-- JavaScript for Toggle Functionality -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Add click event listeners to all eye icons
+    document.querySelectorAll('.toggle-table').forEach(icon => {
+        icon.addEventListener('click', function () {
+            const state = this.getAttribute('data-state');
+            const tableContainerId = `table-container-${state}`;
+            const tableContainer = document.getElementById(tableContainerId);
+
+            // Toggle table visibility
+            if (tableContainer.style.display === 'none' || tableContainer.style.display === '') {
+                tableContainer.style.display = 'block';
+                this.classList.remove('bi-eye');
+                this.classList.add('bi-eye-slash'); // Change icon to "eye-slash"
+            } else {
+                tableContainer.style.display = 'none';
+                this.classList.remove('bi-eye-slash');
+                this.classList.add('bi-eye'); // Change icon back to "eye"
+            }
+        });
+    });
+});
+</script>
 
 <!-- JavaScript for dynamic behavior -->
 <script>
