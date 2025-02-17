@@ -651,7 +651,7 @@ if (!empty($_POST['csv_column'])) {
 
 // step 2 state mapping 
 
-if (isset($_POST['state_mapping_submit'])) {
+if (isset($_POST['state_mapping']) && !empty($_POST['state_mapping'])) {
     // Get the mappings from the form
     $stateMapping = $_POST['state_mapping'];
     $stateMapping_clean = [];
@@ -1291,41 +1291,41 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
-// document.addEventListener('DOMContentLoaded', function () {
-//     // Listen for form submission
-//     const saveMappingButton = document.querySelector('button[name="state_mapping_submit"]');
-//     if (saveMappingButton) {
-//         saveMappingButton.addEventListener('click', function (event) {
-//             // Prevent form submission
-//             event.preventDefault();
+document.addEventListener('DOMContentLoaded', function () {
+    // Listen for form submission
+    const saveMappingButton = document.querySelector('button[name="state_mapping_submit"]');
+    if (saveMappingButton) {
+        saveMappingButton.addEventListener('click', function (event) {
+            // Prevent form submission
+            event.preventDefault();
 
-//             // Validate fields in the "Symbols & Numbers" tab
-//             const symbolsTab = document.getElementById('collapsesymbols');
-//             if (symbolsTab) {
-//                 const symbolFields = symbolsTab.querySelectorAll('.state-mapping-row');
-//                 let isValid = true;
+            // Validate fields in the "Symbols & Numbers" tab
+            const symbolsTab = document.getElementById('collapsesymbols');
+            if (symbolsTab) {
+                const symbolFields = symbolsTab.querySelectorAll('.state-mapping-row');
+                let isValid = true;
 
-//                 symbolFields.forEach(row => {
-//                     const dropdown = row.querySelector('.state-select');
-//                     const inputField = row.querySelector('input[type="text"]');
+                symbolFields.forEach(row => {
+                    const dropdown = row.querySelector('.state-select');
+                    const inputField = row.querySelector('input[type="text"]');
 
-//                     // Check if the dropdown or input field is empty
-//                     if ((dropdown && !dropdown.value) || (inputField && !inputField.value)) {
-//                         isValid = false;
-//                     }
-//                 });
+                    // Check if the dropdown or input field is empty
+                    if ((dropdown && !dropdown.value) || (inputField && !inputField.value)) {
+                        isValid = false;
+                    }
+                });
 
-//                 if (!isValid) {
-//                     // Show alert if any field is empty
-//                     alert('Please fill the "Not a USA State" field to process.');
-//                 } else {
-//                     // If all fields are valid, submit the form programmatically
-//                     saveMappingButton.form.submit();
-//                 }
-//             }
-//         });
-//     }
-// });
+                if (!isValid) {
+                    // Show alert if any field is empty
+                    alert('Please fill the "Not a USA State" field to process.');
+                } else {
+                    // If all fields are valid, submit the form programmatically
+                    saveMappingButton.form.submit();
+                }
+            }
+        });
+    }
+});
 
 </script>
 
