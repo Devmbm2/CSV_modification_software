@@ -6,6 +6,13 @@ use libphonenumber\PhoneNumberFormat;
 
 session_start();
 
+
+
+$_SESSION['data_size_options']=[
+    'First word only' => 'Fist word only ',
+    'Initials only' =>  'Initials only '
+];
+
 $_SESSION['uniqueStates']=0;
 
 $_SESSION['state_format'] = [
@@ -362,6 +369,7 @@ if (isset($_POST['upload_csv']) && !empty($_FILES['csv_file'])) {
             fclose($handle);
 
             if (!empty($csvData)) {
+                $_SESSION['step']=1;
                 $_SESSION['csvData']=$csvData;
                 $_SESSION['headers'] = $csvData[0];
                 $_SESSION['rows'] = array_slice($csvData, 1);
@@ -439,132 +447,10 @@ if (isset($_POST['upload_csv']) && !empty($_FILES['csv_file'])) {
 }
 
 
-//  get the states from the column
-// if (!empty($_POST['csv_column']))
-// {
-//             // Extract unique states and their counts from the uploaded file
-//             $stateIndex = array_search($_POST['csv_column'] , $_SESSION['headers']);
-//             $uniqueStates = [];
-//             $usa_state_only =fetchStatesData();
-//             if ($stateIndex !== false) {
-//                 $stateCounts = []; // Array to store state counts
-//                 foreach ($_SESSION['csvData'] as $index => $row) {
-//                     if ($index === 0) continue; // Skip the header row
-//                     $state = $row[$stateIndex];
-//                     if (!empty($state)) {
-//                         $stateCounts[$state] = ($stateCounts[$state] ?? 0) + 1;
-//                     }
-//                 }
 
-//                 // Combine state names and their counts
-//                 foreach ($stateCounts as $state => $count) {
-//                     $uniqueStates[] = $state . " (" . $count . ")";
-//                 }
+// Extract unique states and their counts from the uploaded file
 
-           
-//                 // Custom sorting logic
-//                 usort($uniqueStates, function ($a, $b) {
-//                     // Extract the first character for comparison
-//                     $firstCharA = strtoupper($a[0] ?? ''); // Handle empty strings
-//                     $firstCharB = strtoupper($b[0] ?? '');
-
-//                     // Place alphabetic characters first
-//                     if (ctype_alpha($firstCharA) && !ctype_alpha($firstCharB)) return -1;
-//                     if (!ctype_alpha($firstCharA) && ctype_alpha($firstCharB)) return 1;
-
-//                     // Sort numbers/symbols next
-//                     if (ctype_alnum($firstCharA) && !ctype_alnum($firstCharB)) return -1;
-//                     if (!ctype_alnum($firstCharA) && ctype_alnum($firstCharB)) return 1;
-
-//                     // Sort empty strings at the end
-//                     if ($a === "") return 1;
-//                     if ($b === "") return -1;
-
-//                     // Default string comparison
-//                     return strcasecmp($a, $b);
-//                 });
-//                 $_SESSION['csv_column'] = $_POST['csv_column'];
-//                 $_SESSION['state_format_select']=$_POST['state_format_select'];
-//                 $_SESSION['uniqueStates'] = $uniqueStates;
-//                 $_SESSION['States_formats'] = formatStatesArray($_POST['state_format_select']);
-
-//             }
-
-// }
-
-
-
-
-// if (!empty($_POST['csv_column'])) {
-//     // Extract unique states and their counts from the uploaded file
-//     $stateIndex = array_search($_POST['csv_column'], $_SESSION['headers']);
-//     $uniqueStates = [];
-//     $groupedStates = []; // To store states grouped alphabetically
-//     $usa_state_only = fetchStatesData(); // Fetch the predefined states data
-
-//     if ($stateIndex !== false) {
-//         $stateCounts = []; // Array to store state counts
-//         foreach ($_SESSION['csvData'] as $index => $row) {
-//             if ($index === 0) continue; // Skip the header row
-//             $state = trim($row[$stateIndex]); // Trim whitespace
-//             if (!empty($state)) {
-//                 $stateCounts[$state] = ($stateCounts[$state] ?? 0) + 1;
-//             }
-//         }
-
-//         // Create a lookup array for valid USA states (case-insensitive)
-//         $validStatesLookup = [];
-//         foreach ($usa_state_only as $key => $value) {
-//             $validStatesLookup[strtolower($key)] = true; // Abbreviation (e.g., "FL")
-//             $validStatesLookup[strtolower($value)] = true; // Full name (e.g., "Florida")
-//             $validStatesLookup[strtolower("$value, $key")] = true; // Combined format (e.g., "Florida, FL")
-//             $validStatesLookup[strtolower("$key, $value")] = true; // Reverse combined format (e.g., "FL, Florida")
-//         }
-
-//         // Group states alphabetically or into "Symbols & Numbers"
-//         foreach ($stateCounts as $state => $count) {
-//             $stateName = strtolower(trim($state));
-//             $firstChar = strtoupper($stateName[0] ?? '');
-
-//             // Check if the state is valid
-//             $isValidState = isset($validStatesLookup[$stateName]);
-
-//             if ($isValidState && ctype_alpha($firstChar)) {
-//                 // Add to alphabetical group
-//                 $groupedStates[$firstChar][] = $state . " (" . $count . ")";
-//             } else {
-//                 // Add to "Symbols & Numbers" group
-//                 $groupedStates['symbols'][] = $state . " (" . $count . ")";
-//             }
-//         }
-
-//         // Sort each group alphabetically
-//         foreach ($groupedStates as $group => &$states) {
-//             sort($states, SORT_STRING | SORT_FLAG_CASE);
-//         }
-//         unset($states); // Break reference
-
-//         // Ensure "Symbols & Numbers" group is at the end
-//         if (isset($groupedStates['symbols'])) {
-//             $symbolsGroup = $groupedStates['symbols'];
-//             unset($groupedStates['symbols']); // Remove symbols group temporarily
-//             ksort($groupedStates); // Sort remaining groups alphabetically
-//             $groupedStates['symbols'] = $symbolsGroup; // Add symbols group back at the end
-//         } else {
-//             ksort($groupedStates); // Sort all groups alphabetically
-//         }
-
-//         // Store the selected column, format, and grouped states in session
-//         $_SESSION['csv_column'] = $_POST['csv_column'];
-//         $_SESSION['state_format_select'] = $_POST['state_format_select'];
-//         $_SESSION['groupedStates'] = $groupedStates; // Store grouped states
-//         $_SESSION['States_formats'] = formatStatesArray($_POST['state_format_select']);
-//     }
-// }
-
-
-if (!empty($_POST['csv_column'])) {
-    // Extract unique states and their counts from the uploaded file
+if (!empty($_POST['csv_column'])) {   
     $stateIndex = array_search($_POST['csv_column'], $_SESSION['headers']);
     $uniqueStates = [];
     $groupedStates = []; // To store states grouped alphabetically
@@ -737,6 +623,10 @@ if (isset($_POST['state_mapping']) && !empty($_POST['state_mapping'])) {
             }
             fclose($handle);
             echo "Updated file saved as: $newFileName<br>";
+
+            $_SESSION['uploaded_file']=$newFileName;
+            update_file($newFileName);
+            $_SESSION['step']=2;
         } else {
             echo "Failed to open the working file for writing.<br>";
         }
@@ -753,6 +643,7 @@ if (isset($_POST['state_mapping']) && !empty($_POST['state_mapping'])) {
             }
             fclose($handle);
             echo "Bad data file saved as: $badDataFileName<br>";
+            $_SESSION['bad_data'] = $badDataFileName;
         } else {
             echo "Failed to open the bad data file for writing.<br>";
         }
@@ -846,6 +737,10 @@ if (isset($_POST['phone_mapping_submit'])) {
 
         fclose($handle);
         echo "Updated file saved as: $newFileName";
+
+        $_SESSION['uploaded_file']=$newFileName;
+        update_file($newFileName);
+        $_SESSION['step']=3;
     } else {
         echo "Failed to save the updated CSV file.";
     }
@@ -933,10 +828,197 @@ if (isset($_POST['address_mapping_submit'])) {
         
   
         echo "Updated file saved as: $newFileName";
+
+        $_SESSION['uploaded_file']=$newFileName;
+        update_file($newFileName);
+        $_SESSION['step']=4;
     } else {
         echo "File not found.";
     }
 }
+
+
+
+
+// size adjustments
+
+// Check if the size adjustment form is submitted
+if (isset($_POST['size_adjust_submit'])) {
+    $selectedColumn = $_POST['size_column'];
+    $allowedSize = (int)$_POST['added_size'];
+
+    // Validate inputs
+    if (!empty($selectedColumn) && $allowedSize > 0) {
+        $_SESSION['size_column'] = $selectedColumn;
+        $_SESSION['added_size'] = $allowedSize;
+
+        // Get the index of the selected column
+        $columnIndex = array_search($selectedColumn, $_SESSION['headers']);
+        $exceedingRows = [];
+
+        // Loop through the CSV data to find rows exceeding the allowed size
+        foreach ($_SESSION['csvData'] as $index => $row) {
+            if ($index === 0) continue; // Skip header row
+            $value = $row[$columnIndex] ?? '';
+            if (strlen($value) > $allowedSize) {
+                $exceedingRows[] = $row; // Store the entire row
+            }
+        }
+
+        // Store the exceeding rows in the session
+        $_SESSION['exceeding_rows'] = $exceedingRows;
+    } else {
+        echo "Please select a valid column and provide a valid maximum character limit.";
+    }
+}
+
+if (isset($_POST['update_csv_submit'])) {
+    $updatedValues = $_POST['updated_values'];
+    $ids = $_POST['ids'];
+
+    // Update the CSV data with the new values provided by the user
+    foreach ($_SESSION['csvData'] as &$row) {
+        $id = $row[0]; // Assuming the first column is the ID
+        if (in_array($id, $ids)) {
+            $index = array_search($id, $ids);
+            $columnIndex = array_search($_SESSION['size_column'], $_SESSION['headers']);
+            $row[$columnIndex] = $updatedValues[$index];
+        }
+    }
+
+    // Save the updated CSV file
+    $workingDir = 'working/';
+    if (!is_dir($workingDir)) {
+        mkdir($workingDir, 0777, true);
+    }
+
+    $files = glob($workingDir . 'working_size-*.csv');
+    $version = 1;
+    if (!empty($files)) {
+        $highestVersion = 0;
+        foreach ($files as $file) {
+            if (preg_match('/working_size-(\d+)\.csv$/', $file, $matches)) {
+                $highestVersion = max($highestVersion, (int)$matches[1]);
+            }
+        }
+        $version = $highestVersion + 1;
+    }
+
+    $newFileName = $workingDir . "working_size-$version.csv";
+
+    if (($handle = fopen($newFileName, 'w')) !== false) {
+        fputcsv($handle, $_SESSION['headers']); // Write headers first
+
+        // Ensure headers are not duplicated in data
+        $data = $_SESSION['csvData'];
+        if ($data[0] === $_SESSION['headers']) {
+            array_shift($data); // Remove headers from data if already present
+        }
+
+        foreach ($data as $row) {
+            fputcsv($handle, $row);
+        }
+        fclose($handle);
+        echo "Updated file saved as: $newFileName";
+        $_SESSION['uploaded_file']=$newFileName;
+        update_file($newFileName);
+        $_SESSION['step']=5;
+    } else {
+        echo "Failed to save the updated CSV file.";
+    }
+}
+
+
+
+
+
+if (isset($_POST['size_adjust_auto'])) {
+    if (!isset($_POST['size_column_2'], $_POST['size_data_2'], $_SESSION['csvData'], $_SESSION['headers'])) {
+        die("Missing required data.");
+    }
+
+    $selectedColumn = $_POST['size_column_2'];
+    $selectedOption = $_POST['size_data_2'];
+
+    // Validate inputs
+    if (empty($selectedColumn) || empty($selectedOption)) {
+        die("Please select both a column and an adjustment option.");
+    }
+
+    // Ensure the selected column exists
+    $columnIndex = array_search($selectedColumn, $_SESSION['headers']);
+    if ($columnIndex === false) {
+        die("Invalid column selection.");
+    }
+
+    // Function to extract the first word
+    function getFirstWord($text) {
+        $words = explode(' ', trim($text));
+        return $words[0] ?? $text; // Return first word or original text if no spaces
+    }
+
+    // Function to extract initials (first letter of each word in uppercase)
+    function getInitials($text) {
+        $words = explode(' ', trim($text));
+        $initials = array_map(function($word) {
+            return strtoupper($word[0] ?? '');
+        }, $words);
+        return implode('', $initials);
+    }
+
+    // Apply transformation based on selected option
+    foreach ($_SESSION['csvData'] as &$row) {
+        if (!isset($row[$columnIndex])) continue; // Skip if column index is not set
+
+        if ($selectedOption === 'First word only') {
+            $row[$columnIndex] = getFirstWord($row[$columnIndex]);
+        } elseif ($selectedOption === 'Initials only') {
+            $row[$columnIndex] = getInitials($row[$columnIndex]);
+        }
+    }
+
+    // Save the updated CSV file
+    $workingDir = 'working/';
+    if (!is_dir($workingDir)) {
+        mkdir($workingDir, 0777, true);
+    }
+
+    $files = glob($workingDir . 'working_size-*.csv');
+    $version = 1;
+    if (!empty($files)) {
+        $highestVersion = 0;
+        foreach ($files as $file) {
+            if (preg_match('/working_size-(\d+)\.csv$/', $file, $matches)) {
+                $highestVersion = max($highestVersion, (int)$matches[1]);
+            }
+        }
+        $version = $highestVersion + 1;
+    }
+
+    $newFileName = $workingDir . "working_size-$version.csv";
+
+    if (($handle = fopen($newFileName, 'w')) !== false) {
+        fputcsv($handle, $_SESSION['headers']); // Write headers first
+
+        // Ensure headers are not duplicated in data
+        $data = $_SESSION['csvData'];
+        if ($data[0] === $_SESSION['headers']) {
+            array_shift($data); // Remove headers from data if already present
+        }
+
+        foreach ($data as $row) {
+            fputcsv($handle, $row);
+        }
+        fclose($handle);
+        echo "Updated file saved as: $newFileName";
+        $_SESSION['uploaded_file']=$newFileName;
+        update_file($newFileName);
+        
+    } else {
+        echo "Failed to save the updated CSV file.";
+    }
+}
+
 
 
 
@@ -962,21 +1044,9 @@ if (isset($_POST['process_csv']) && !empty($_POST['field_mapping']) && !empty($_
             foreach ($headers as $index => $header) {
                 $mappedHeader = $fieldMapping[$header] ?? '';
                 $value = $row[$index] ?? '';
-                if (strtolower($mappedHeader) === 'phone_number' && !empty($value)) {
-                    $number_arr = processPhoneNumber($value , $phone_format);
-                    $mappedRow[] = $number_arr['phone_number'];
-                } 
-                elseif (strtolower($mappedHeader) === 'phone_number_area_code' && !empty($number_arr['phone_number_area_code'])) {
-                    $mappedRow[] = $number_arr['phone_number_area_code'];
-                }
-                elseif (strtolower($mappedHeader) === 'phone_number_country_code' && !empty($number_arr['phone_number_country_code'])) {
-                    $mappedRow[] = $number_arr['phone_number_country_code'];
-                }
-                elseif (strtolower($mappedHeader) === 'phone_number_extension' && !empty($number_arr['phone_number_extension'])) {
-                    $mappedRow[] = $number_arr['phone_number_extension'];
-                } else {
+
                     $mappedRow[] = $value;
-                }
+              
             }
             fputcsv($outputHandle, $mappedRow);
         }
@@ -984,6 +1054,7 @@ if (isset($_POST['process_csv']) && !empty($_POST['field_mapping']) && !empty($_
         fclose($handle);
         fclose($outputHandle);
         $_SESSION['output_csv'] = $outputCsvPath;
+        $_SESSION['step']=6;
     } else {
         echo "Error: Failed to process file.";
     }
@@ -995,6 +1066,98 @@ if (isset($_POST['reset'])) {
     header("Location: " . $_SERVER['PHP_SELF']);
     exit;
 }
+
+function update_file($file){
+  $uploadedFilePath=$file;
+    if ($uploadedFilePath) {
+        if (($handle = fopen($uploadedFilePath, 'r')) !== false) {
+            $csvData = [];
+            while (($row = fgetcsv($handle, 0, ',')) !== false) {
+                $csvData[] = $row;
+            }
+            fclose($handle);
+
+            if (!empty($csvData)) {
+                $_SESSION['csvData']=$csvData;
+                $_SESSION['headers'] = $csvData[0];
+                $_SESSION['rows'] = array_slice($csvData, 1);
+                $_SESSION['uploaded_file'] = $uploadedFilePath;
+                    if(isset($_POST['address_mapping_submit'])){
+                        $_SESSION['options'] = array(
+                            "id",
+                            "first_name",
+                            "last_name",
+                            "middle_name",
+                            "nickname",
+                            "initials",
+                            "birthdate",
+                            "extra_suffix",
+                            "ssn",
+                            "date_of_death",
+                            "contact_type_id",
+                            "contact_type_name",
+                            "articulation_id",
+                            "articulation",
+                            "dress_id",
+                            "dress",
+                            "education_id",
+                            "education",
+                            "gender_id",
+                            "gender",
+                            "language_id",
+                            "language",
+                            "marital_status_id",
+                            "marital_status",
+                            "parent_id",
+                            "parent",
+                            "first_line",
+                            "first_line",
+                            "second_line",
+                            "second_line",
+                            "plus_5",
+                            "city",
+                            "zip_code",
+                            "primary_address_city_id",
+                            "city",
+                            "primary_address_country_id",
+                            "plus_5",
+                            "primary_address_county_id",
+                            "primary_address_county",
+                            "name_of_address",
+                            "state",
+                            "primary_address_zip_code_id",
+                            "zip_code",
+                            "contact_email_id",
+                            "contact_email",
+                            "phone_number_id",
+                            "phone_number",
+                            "phone_number_area_code",
+                            "phone_number_country_code",
+                            "phone_number_extension",
+                            "phone_number_extension_label",
+                            "phone_number_nickname",
+                            "phone_number_is_ada",
+                            "phone_number_is_registered_agent",
+                            "additional_fields_data",
+                            "is_archived",
+                            "data",
+                            "note"
+                        );
+                    }
+
+            } else {
+                echo "Error: Empty CSV file.";
+            }
+        } else {
+            echo "Error: Failed to read the file.";
+        }
+
+
+}
+}
+
+
+
 ?>
 
 <!DOCTYPE html>
@@ -1031,7 +1194,7 @@ if (isset($_POST['reset'])) {
                     Step 1: Upload CSV File
                 </button>
             </h2>
-            <div id="collapseOne" class="accordion-collapse collapse <?php echo !isset($_SESSION['headers']) ? 'show' : ''; ?>" aria-labelledby="headingOne" data-bs-parent="#csvProcessorAccordion">
+            <div id="collapseOne" class="accordion-collapse collapse <?php echo ($_SESSION['step']==0) ? 'show' : ''; ?>" aria-labelledby="headingOne" data-bs-parent="#csvProcessorAccordion">
                 <div class="accordion-body">
                     <form method="post" enctype="multipart/form-data" class="mb-4 text-center">
                         <div class="mb-3 d-flex justify-content-center">
@@ -1053,20 +1216,22 @@ if (isset($_POST['reset'])) {
                 Step 2: Modify CSV file
             </button>
         </h2>
-        <div id="collapseTwo" class="accordion-collapse collapse <?php echo isset($_SESSION['output_csv']) ? '' : 'show'; ?>" aria-labelledby="headingTwo" data-bs-parent="#csvProcessorAccordion">
+        <div id="collapseTwo" 
+        class="accordion-collapse collapse <?php if($_SESSION['step']==1 || $_SESSION['step']==2 || $_SESSION['step']==3 || $_SESSION['step']==4 || $_SESSION['step']==5 ){ echo "show";} ?>"
+         aria-labelledby="headingTwo" data-bs-parent="#csvProcessorAccordion">
             <div class="accordion-body">
 
                 <!-- Parent Accordion for Mapping Forms -->
                 <div class="accordion" id="mappingFormsAccordion">
                     
-                    <!-- State Mapping Accordion Item -->
-                    <div class="accordion-item">
+                 <!-- State Mapping Accordion Item -->
+                 <div class="accordion-item">
                         <h2 class="accordion-header" id="stateMappingHeading">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#stateMappingCollapse" aria-expanded="true" aria-controls="stateMappingCollapse">
                                 State Mapping
                             </button>
                         </h2>
-                        <div id="stateMappingCollapse" class="accordion-collapse collapse " aria-labelledby="stateMappingHeading" data-bs-parent="#mappingFormsAccordion">
+                        <div id="stateMappingCollapse" class="accordion-collapse collapse <?php echo ($_SESSION['step']==1) ? 'show' : ''; ?> " aria-labelledby="stateMappingHeading" data-bs-parent="#mappingFormsAccordion">
                             <div class="accordion-body">
                                 
                                 <h4 class="form-header">States Mapping</h4>
@@ -1300,8 +1465,8 @@ document.addEventListener('DOMContentLoaded', function () {
             event.preventDefault();
 
             // Validate fields in the "Symbols & Numbers" tab
-            const symbolsTab = document.getElementById('collapsesymbols');
-            if (symbolsTab) {
+            if ( document.getElementById('collapsesymbols')) {
+                const symbolsTab = document.getElementById('collapsesymbols');
                 const symbolFields = symbolsTab.querySelectorAll('.state-mapping-row');
                 let isValid = true;
 
@@ -1322,6 +1487,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     // If all fields are valid, submit the form programmatically
                     saveMappingButton.form.submit();
                 }
+            }
+            else{
+                saveMappingButton.form.submit();
             }
         });
     }
@@ -1345,7 +1513,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             </button>
                         </h2>
 
-                        <div id="phoneCollapse" class="accordion-collapse collapse " aria-labelledby="phoneHeading" data-bs-parent="#mappingFormsAccordion">
+                        <div id="phoneCollapse" class="accordion-collapse collapse <?php echo ($_SESSION['step']==2) ? 'show' : ''; ?> " aria-labelledby="phoneHeading" data-bs-parent="#mappingFormsAccordion">
                             <div class="accordion-body">
                                 
                                 <h4 class="form-header">Phone Number Format Setting</h4>
@@ -1403,7 +1571,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     </div>
 
-                                            <!-- Phone Number  Accordion Item -->
+                                            <!-- Address  Accordion Item -->
             <div class="accordion-item">
                         <h2 class="accordion-header" id="addressHeading">
                             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#addressCollapse" aria-expanded="true" aria-controls="addressCollapse">
@@ -1411,7 +1579,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             </button>
                         </h2>
 
-                        <div id="addressCollapse" class="accordion-collapse collapse " aria-labelledby="addressHeading" data-bs-parent="#mappingFormsAccordion">
+                        <div id="addressCollapse" class="accordion-collapse collapse <?php echo ($_SESSION['step']==3) ? 'show' : ''; ?> " aria-labelledby="addressHeading" data-bs-parent="#mappingFormsAccordion">
                             <div class="accordion-body">
                                 
                                 <h4 class="form-header"> Address Mapping </h4>
@@ -1468,7 +1636,185 @@ document.addEventListener('DOMContentLoaded', function () {
                         </div>
 
 
-        </div>
+            </div>
+
+
+
+            
+                                                         
+            <!-- Size  Accordion Item -->
+            
+            <div class="accordion-item">
+                        <h2 class="accordion-header" id="size_data_adjust">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#size_data_adjustCollapse" aria-expanded="false" aria-controls="size_data_adjustCollapse">
+                            Data size adjustments
+                            </button>
+                        </h2>
+                        <div id="size_data_adjustCollapse" class="accordion-collapse collapse <?php echo ($_SESSION['step']==4) ? 'show' : ''; ?> " aria-labelledby="size_data_adjust" data-bs-parent="#mappingFormsAccordion">
+                            
+                            <div class="accordion-body">
+
+               
+               
+                            <div class="accordion" id="data_DropdownAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="sizeHeading">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#sizeCollapse" aria-expanded="true" aria-controls="sizeCollapse">
+                                        Data size adjustments Manually
+                                    </button> 
+                                </h2>
+
+                                <div id="sizeCollapse" class="accordion-collapse collapse  <?php echo ($_SESSION['step']==4) ? 'show' : ''; ?>" aria-labelledby="sizeHeading" data-bs-parent="#data_DropdownAccordion">
+                                    <div class="accordion-body">
+                                        
+                                        <h4 class="form-header"> Data size adjustments </h4>
+                                            
+                                        <!-- Column Selection Form -->
+
+                                        <form method="post" action="process.php" class="mb-4 text-center ">
+                                        <div class="row mb-3">
+                                        <div class="col">
+                                            <label for="csvColumnSelect" class="form-label">Select Column to data size adjustments</label>
+                                            <select id="csvColumnSelect" name="size_column" class="form-select">
+                                                <option value="">Select Column</option>
+                                                <?php 
+                                                foreach ($_SESSION['headers'] as $header): 
+                                                
+                                                ?>
+                                                    <option value="<?php echo htmlspecialchars($header); ?>" 
+                                                        <?php echo (isset($_SESSION['size_column']) && $_SESSION['size_column'] === $header) ? 'selected' : ''; ?>>
+                                                        <?php echo htmlspecialchars($header); ?>
+                                                    </option>
+                                                <?php 
+                                                
+                                                endforeach; 
+                                                ?>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="col">
+                                            <label for="csvSecondColumnSelect" class="form-label">Add Maximum Allowed Characters</label>
+                                            <input 
+                                                    type="text" 
+                                                    id="csvSecondColumnInput" 
+                                                    name="added_size" 
+                                                    class="form-control" 
+                                                    value="<?php echo isset($_SESSION['added_size']) ? htmlspecialchars($_SESSION['added_size']) : ''; ?>" 
+                                                    placeholder="for example 50" 
+                                                
+                                                ></input>
+                                        </div>
+                                    </div>            
+                                    <button type="submit" name="size_adjust_submit" class="btn btn-primary">Show</button>
+                                </form>
+                                        
+                                        <!-- HTML Form for Displaying Exceeding Rows -->
+                                        <?php if (isset($_SESSION['exceeding_rows']) && !empty($_SESSION['exceeding_rows'])): ?>
+                                        <form method="post" action="process.php" class="mt-4">
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th style="width: 50px;">Action</th>
+                                                            <th>Selected Column Content</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php 
+                                                        $columnIndex = array_search($_SESSION['size_column'], $_SESSION['headers']);
+                                                        foreach ($_SESSION['exceeding_rows'] as $index => $row): 
+                                                        ?>
+                                                        <tr>
+                                                            <td style="width: 50px;">
+                                                                <!-- Eye Icon to Show Full Record -->
+                                                                <button type="button" class="btn btn-sm btn-info view-record" data-bs-toggle="modal" data-bs-target="#recordModal" data-index="<?php echo $index; ?>">
+                                                                    <i class="fas fa-eye"></i>
+                                                                </button>
+                                                            </td>
+                                                            <td>
+                                                                <!-- Hidden Input for ID -->
+                                                                <input type="hidden" name="ids[]" value="<?php echo htmlspecialchars($row[0]); ?>">
+                                                                <!-- Textarea to Edit Selected Column Content -->
+                                                                <textarea name="updated_values[]" class="form-control" rows="3"><?php echo htmlspecialchars($row[$columnIndex]); ?></textarea>
+                                                            </td>
+                                                        </tr>
+                                                        <?php endforeach; ?>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <button type="submit" name="update_csv_submit" class="btn btn-success">Save Changes</button>
+                                        </form>
+                                        <?php endif; ?>
+
+                                    <!-- Modal to Display Full Record -->
+                                    <div class="modal fade" id="recordModal" tabindex="-1" aria-labelledby="recordModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="recordModalLabel">Full Record Details</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+                                                    <table class="table table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <?php foreach ($_SESSION['headers'] as $header): ?>
+                                                                <th><?php echo htmlspecialchars($header); ?></th>
+                                                                <?php endforeach; ?>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="recordDetails">
+                                                            <!-- Dynamic content will be loaded here -->
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <script>
+                                    document.addEventListener('DOMContentLoaded', function () {
+                                        // Add event listener to all view-record buttons
+                                        document.querySelectorAll('.view-record').forEach(button => {
+                                            button.addEventListener('click', function () {
+                                                const index = this.getAttribute('data-index');
+                                                const row = <?php echo json_encode($_SESSION['exceeding_rows']); ?>[index];
+                                                const headers = <?php echo json_encode($_SESSION['headers']); ?>;
+
+                                                let tableContent = '<tr>';
+                                                headers.forEach((header, i) => {
+                                                    tableContent += `<td>${row[i]}</td>`;
+                                                });
+                                                tableContent += '</tr>';
+
+                                                // Populate the modal body with the row details
+                                                document.getElementById('recordDetails').innerHTML = tableContent;
+                                            });
+                                        });
+                                    });
+                                    </script>
+
+
+                                        
+
+
+                                    </div>
+                                </div>
+
+                                
+
+                            </div>
+
+                            </div>
+                        </div>
+                    </div>     
+    </div>
+
+
+
 
 
                     <!-- Field Mapping Accordion Item -->
@@ -1478,7 +1824,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 Field Mapping
                             </button>
                         </h2>
-                        <div id="fieldMappingCollapse" class="accordion-collapse collapse" aria-labelledby="fieldMappingHeading" data-bs-parent="#mappingFormsAccordion">
+                        <div id="fieldMappingCollapse" class="accordion-collapse collapse  <?php echo ($_SESSION['step']==5) ? 'show' : ''; ?>" aria-labelledby="fieldMappingHeading" data-bs-parent="#mappingFormsAccordion">
                             <div class="accordion-body">
 
                                 <h2 class="form-header">Field Mapping</h2>
@@ -1518,8 +1864,13 @@ document.addEventListener('DOMContentLoaded', function () {
 <?php endif; ?>
 
 
+
+
+
+
+
         <!-- Step 3: Download Processed File -->
-        <?php if (isset($_SESSION['output_csv'])) : ?>
+        <?php if (isset($_SESSION['output_csv']) && $_SESSION['step']==6 ) : ?>
             <div class="accordion-item">
                 <h2 class="accordion-header" id="headingThree">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
@@ -1528,21 +1879,59 @@ document.addEventListener('DOMContentLoaded', function () {
                 </h2>
                 <div id="collapseThree" class="accordion-collapse collapse show" aria-labelledby="headingThree" data-bs-parent="#csvProcessorAccordion">
                     <div class="accordion-body text-center">
-                        <a href="<?php echo htmlspecialchars($_SESSION['output_csv']); ?>" class="btn btn-success mb-3" download>Download Mapped File</a>
+                        <a href="<?php echo htmlspecialchars($_SESSION['output_csv']); ?>" class="btn btn-warning mb-3" download>Download Mapped File</a>
+                        <?php if(isset($_SESSION['bad_data'])) { ?>
+                        <a href="<?php echo htmlspecialchars($_SESSION['bad_data']); ?>" class="btn btn-success mb-3" download>Download Bad Data File</a>
+                        <?php  } ?> 
                         <form method="post">
                             <button type="submit" name="reset" class="btn btn-danger">Restart</button>
                         </form>
                     </div>
                 </div>
             </div>
+
         <?php endif; ?>
     </div>
+    <script>
+        // document.addEventListener('DOMContentLoaded', function() {
+            
+        //     // Restore accordion states
+        //     const savedState = localStorage.getItem('accordionState');
+        //     if (savedState) {
+        //         const states = JSON.parse(savedState);
+        //         states.forEach(id => {
+        //             const element = document.getElementById(id);
+        //             if (element) {
+        //                 const bsCollapse = new bootstrap.Collapse(element, { toggle: false });
+        //                 bsCollapse.show();
+        //             }
+        //         });
+        //     }
 
+        //     // Save accordion states
+        //     function saveState() {
+        //         const openAccordions = [];
+        //         document.querySelectorAll('.accordion-collapse.show').forEach(collapse => {
+        //             openAccordions.push(collapse.id);
+        //         });
+        //         localStorage.setItem('accordionState', JSON.stringify(openAccordions));
+        //     }
 
+        //     // Event listeners for accordion changes
+        //     document.querySelectorAll('.accordion-collapse').forEach(collapse => {
+        //         collapse.addEventListener('shown.bs.collapse', saveState);
+        //         collapse.addEventListener('hidden.bs.collapse', saveState);
+        //     });
+        // });
 
+        if (window.history.replaceState) {
+                window.history.replaceState(null, null, window.location.href);
+            }
 
+</script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  
+
 </body>
 </html>
 
