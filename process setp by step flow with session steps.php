@@ -6,7 +6,7 @@ use libphonenumber\PhoneNumberFormat;
 
 session_start();
 
-$_SESSION['show_states_mapping'] = 0;
+
 
 $_SESSION['data_size_options']=[
     'First word only' => 'Fist word only ',
@@ -21,6 +21,7 @@ $_SESSION['state_format'] = [
     'state_f3' => 'Abbreviation + Name',     // Abbreviation + Name
     'state_f4' => 'Name + Abbreviation'      // Name + Abbreviation
 ];
+$_SESSION['state_format_select']=[];
 
 
 
@@ -191,27 +192,51 @@ function fetchStatesData() {
     return $usStates;
 }
 
-function formatStatesArray($format_ke) {
-       // Fetch the states data (from the internet or static array)
-       $states = fetchStatesData();
+function formatStatesArray($format_key) {
+    // Fetch the states data (from the internet or static array)
+    $states = fetchStatesData();
 
-       $formatted_states = [
-           'Abbreviation' => [],
-           'Complete Name' => [],
-           'Abbreviation + Name' => [],
-           'Name + Abbreviation' => []
-       ];
-   
-       foreach ($states as $abbreviation => $name) {
-           $formatted_states['Abbreviation'][$abbreviation] = $abbreviation;
-           $formatted_states['Complete Name'][$abbreviation] = $name;
-           $formatted_states['Abbreviation + Name'][$abbreviation] = "$abbreviation, $name";
-           $formatted_states['Name + Abbreviation'][$abbreviation] = "$name, $abbreviation";
-       }
-   
-       return $formatted_states;
+    $formatted_states = [];
+
+    // Check if the format key exists in $_SESSION['state_format']
+    if (isset($format_key)) {
+        $format = $format_key;
+
+        foreach ($states as $abbreviation => $name) {
+            switch ($format) {
+                case 'Abbreviation': // Abbreviation only
+                    $formatted_states[$abbreviation] = $abbreviation;
+                    break;
+
+                case 'Complete Name': // Full name only
+                    $formatted_states[$abbreviation] = $name;
+                    break;
+
+                case 'Abbreviation + Name': // Abbreviation + Name
+                    $formatted_states[$abbreviation] = "$abbreviation, $name";
+                    break;
+
+                case 'Name + Abbreviation': // Name + Abbreviation
+                    $formatted_states[$abbreviation] = "$name, $abbreviation";
+                    break;
+
+                default:
+                    // Default to full name if no match
+                    $formatted_states[$abbreviation] = $name;
+                    break;
+            }
+        }
+    } else {
+        // If format key is invalid, return the original array
+        return $states;
+    }
+
+    return $formatted_states;
 }
-    
+
+
+
+
 
 
 
@@ -500,14 +525,13 @@ if (!empty($_POST['csv_column'])) {
         $_SESSION['state_format_select'] = $_POST['state_format_select'];
         $_SESSION['groupedStates'] = $groupedStates; // Store grouped states
         $_SESSION['States_formats'] = formatStatesArray($_POST['state_format_select']);
-        $_SESSION['show_states_mapping'] = 1;
-       // print_r($_POST['state_format_select']); die; 
 
         // Encode invalid states and their rows into a JSON array
         $_SESSION['invalidStatesJson'] = json_encode($invalidStatesRows);
     }
     // print_r($_SESSION['invalidStatesJson']); die;
 }
+
 
 
 
@@ -1133,8 +1157,8 @@ function update_file($file){
 }
 
 
-?>
 
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -1161,25 +1185,26 @@ function update_file($file){
 </head>
 <body class="container mt-5">
     <h3 class="mb-4 text-center">CSV Processing Tool</h3>
+
     <div class="accordion" id="csvProcessorAccordion">
-                <!-- Step 1: Upload CSV -->
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingOne">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                            Step 1: Upload CSV File
-                        </button>
-                    </h2>
-                    <div id="collapseOne" class="accordion-collapse collapse <?php echo ($_SESSION['step']==0) ? 'show' : ''; ?>" aria-labelledby="headingOne" data-bs-parent="#csvProcessorAccordion">
-                        <div class="accordion-body">
-                            <form method="post" enctype="multipart/form-data" class="mb-4 text-center">
-                                <div class="mb-3 d-flex justify-content-center">
-                                    <input type="file" name="csv_file" id="csv_file" class="form-control" style="width: 300px;" required>
-                                </div>
-                                <button type="submit" name="upload_csv" class="btn btn-primary">Upload</button>
-                            </form>
+        <!-- Step 1: Upload CSV -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    Step 1: Upload CSV File
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse <?php echo ($_SESSION['step']==0) ? 'show' : ''; ?>" aria-labelledby="headingOne" data-bs-parent="#csvProcessorAccordion">
+                <div class="accordion-body">
+                    <form method="post" enctype="multipart/form-data" class="mb-4 text-center">
+                        <div class="mb-3 d-flex justify-content-center">
+                            <input type="file" name="csv_file" id="csv_file" class="form-control" style="width: 300px;" required>
                         </div>
-                    </div>
+                        <button type="submit" name="upload_csv" class="btn btn-primary">Upload</button>
+                    </form>
                 </div>
+            </div>
+        </div>
 
 
 
@@ -1202,7 +1227,7 @@ function update_file($file){
                  <!-- State Mapping Accordion Item -->
                  <div class="accordion-item">
                         <h2 class="accordion-header" id="stateMappingHeading">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#stateMappingCollapse" aria-expanded="false" aria-controls="stateMappingCollapse">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#stateMappingCollapse" aria-expanded="true" aria-controls="stateMappingCollapse">
                                 State Mapping
                             </button>
                         </h2>
@@ -1257,12 +1282,13 @@ function update_file($file){
 
 
 
-<?php
+                                <?php
 if (!isset($_SESSION['groupedStates']) || empty($_SESSION['groupedStates'])) {
     echo '<p class="text-center">No states available for mapping.</p>';
     return;
 }
-if($_SESSION['show_states_mapping']==1){ ?>
+?>
+
 
 <form method="post" class="mb-4 text-center">
     <div id="mappingFields" class="mb-4">
@@ -1304,162 +1330,30 @@ if($_SESSION['show_states_mapping']==1){ ?>
                                                     <option value="">Select Correct State</option>
                                                     <option value="mark_bad_data">Mark Bad Data</option>
                                                     <option value="enter_manually">Enter Manually</option>
-                                                    <?php foreach ($_SESSION['States_formats'][$_SESSION['state_format_select']] as $status): ?>
+                                                    <?php foreach ($_SESSION['States_formats'] as $status): ?>
                                                         <option value="<?php echo htmlspecialchars($status); ?>">
                                                             <?php echo htmlspecialchars($status); ?>
                                                         </option>
                                                     <?php endforeach; ?>
                                                 </select>
-                                                <div class="dropdown d-inline-block">
-                                                    <i class="bi bi-three-dots-vertical cursor-pointer action-icon" 
-                                                    style="font-size: 1.2rem;" 
-                                                    data-bs-toggle="dropdown" 
-                                                    aria-expanded="false"></i>
-                                                    <ul class="dropdown-menu">
-                                                        <li>
-                                                            <select class="form-select column-select">
-                                                                <option value="">Select Column</option>
-                                                                <option value="Abbreviation">Abbreviation</option>
-                                                                <option value="Complete Name">Complete Name</option>
-                                                                <option value="Abbreviation + Name">Abbreviation + Name</option>
-                                                                <option value="Name + Abbreviation">Name + Abbreviation</option>
-                                                            </select>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                
+
+                                                <!-- Eye Icon for Invalid States -->
+                                                <i class="bi bi-eye ms-2 cursor-pointer toggle-table" 
+                                                   data-state="<?php echo htmlspecialchars($state); ?>" 
+                                                   style="font-size: 1.2rem;"></i>
                                             <?php else: ?>
                                                 <!-- Dropdown for other groups -->
                                                 <select class="form-select" name="state_mapping[<?php echo htmlspecialchars($state); ?>]" 
                                                         aria-label="Select Correct State">
                                                     <option value="">Select Correct State</option>
-                                                    <?php foreach ($_SESSION['States_formats'][$_SESSION['state_format_select']] as $status): ?>
+                                                    <?php foreach ($_SESSION['States_formats'] as $status): ?>
                                                         <option value="<?php echo htmlspecialchars($status); ?>">
                                                             <?php echo htmlspecialchars($status); ?>
                                                         </option>
                                                     <?php endforeach; ?>
                                                 </select>
-                                                <div class="dropdown d-inline-block">
-                                                    <i class="bi bi-three-dots-vertical cursor-pointer action-icon" 
-                                                    style="font-size: 1.2rem;" 
-                                                    data-bs-toggle="dropdown" 
-                                                    aria-expanded="false"></i>
-                                                    <ul class="dropdown-menu">
-                                                        <li>
-                                                            <select class="form-select column-select">
-                                                                <option value="">Select Column</option>
-                                                                <option value="Abbreviation">Abbreviation</option>
-                                                                <option value="Complete Name">Complete Name</option>
-                                                                <option value="Abbreviation + Name">Abbreviation + Name</option>
-                                                                <option value="Name + Abbreviation">Name + Abbreviation</option>
-                                                            </select>
-                                                        </li>
-                                                    </ul>
-                                                </div>
                                             <?php endif; ?>
                                         </div>
-
-                                        <script>
-                                            var statesFormats = <?php echo json_encode($_SESSION['States_formats'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
-                                            sessionStorage.setItem("States_formats", JSON.stringify(statesFormats));
-
-                                            document.addEventListener("DOMContentLoaded", function () {
-                                                document.querySelectorAll(".column-select").forEach(select => {
-                                                    select.addEventListener("change", function () {
-                                                        let selectedFormat = this.value;
-                                                        if (!selectedFormat) return;
-
-                                                        let dropdownContainer = this.closest(".dropdown");
-                                                        let selectField = dropdownContainer ? dropdownContainer.previousElementSibling : null;
-                                                        let accordionItem = this.closest(".accordion-item");
-                                                        let isNotValidUSAState = accordionItem && accordionItem.querySelector(".accordion-button")?.textContent.includes("Not Valid USA States");
-
-                                                        if (!selectField || !selectField.classList.contains("form-select")) return;
-
-                                                        let statesFormats = JSON.parse(sessionStorage.getItem("States_formats"));
-
-                                                        if (statesFormats && statesFormats[selectedFormat]) {
-                                                            let selectedValue = selectField.value;
-                                                            selectField.innerHTML = '<option value="">Select Correct State</option>';
-
-                                                            if (isNotValidUSAState) {
-                                                                selectField.innerHTML += `
-                                                                    <option value="mark_bad_data">Mark Bad Data</option>
-                                                                    <option value="enter_manually">Enter Manually</option>
-                                                                `;
-                                                            }
-
-                                                            Object.entries(statesFormats[selectedFormat]).forEach(([abbr, value]) => {
-                                                                let option = document.createElement("option");
-                                                                option.value = value;
-                                                                option.textContent = value;
-                                                                if (value === selectedValue) option.selected = true;
-                                                                selectField.appendChild(option);
-                                                            });
-                                                        }
-                                                    });
-                                                });
-
-                                                function handleManualEntry(select) {
-                                                    if (select.value === "enter_manually") {
-                                                        let parentDiv = select.closest(".d-flex");
-                                                        let actionIcon = parentDiv.querySelector(".action-icon");
-
-                                                        let inputField = document.createElement("input");
-                                                        inputField.type = "text";
-                                                        inputField.className = "form-control manual-entry";
-                                                        inputField.name = select.name;
-                                                        inputField.placeholder = "Please enter a valid state";
-                                                        
-                                                        let reverseIcon = document.createElement("i");
-                                                        reverseIcon.className = "bi bi-arrow-counterclockwise cursor-pointer reverse-icon";
-                                                        reverseIcon.style.fontSize = "1.2rem";
-                                                        reverseIcon.style.marginLeft = "10px";
-
-                                                        actionIcon.style.display = "none"; // Hide action icon
-                                                        parentDiv.appendChild(reverseIcon); // Add reverse icon
-
-                                                        select.replaceWith(inputField);
-
-                                                        reverseIcon.addEventListener("click", function () {
-                                                            let selectField = document.createElement("select");
-                                                            selectField.className = "form-select state-select";
-                                                            selectField.name = inputField.name;
-
-                                                            let statesFormats = JSON.parse(sessionStorage.getItem("States_formats"));
-                                                            let defaultOptions = '<option value="">Select Correct State</option>';
-                                                            defaultOptions += ` <option value="mark_bad_data">Mark Bad Data</option>
-                                                                <option value="enter_manually">Enter Manually</option>`;
-                                                            Object.values(statesFormats).forEach(group => {
-                                                                Object.values(group).forEach(value => {
-                                                                    defaultOptions += `<option value="${value}">${value}</option>`;
-                                                                });
-                                                            });
-
-                                                            selectField.innerHTML = defaultOptions;
-                                                            inputField.replaceWith(selectField);
-                                                            actionIcon.style.display = "inline-block";
-                                                            reverseIcon.remove(); // Remove reverse icon
-                                                            
-                                                            // Reattach event listener to newly created select field
-                                                            selectField.addEventListener("change", function () {
-                                                                handleManualEntry(selectField);
-                                                            });
-                                                        });
-                                                    }
-                                                }
-
-                                                // Handle manual entry selection
-                                                document.querySelectorAll(".state-select").forEach(select => {
-                                                    select.addEventListener("change", function () {
-                                                        handleManualEntry(this);
-                                                    });
-                                                });
-                                            });
-
-                                        </script>
-
-
 
                                         <!-- Scrollable Container for Table -->
                                         <div class="w-100 invalid-state-table-container" id="table-container-<?php echo htmlspecialchars($state); ?>" style="display: none; max-width: 100%; overflow-x: auto;">
@@ -1541,7 +1435,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <!-- JavaScript for dynamic behavior -->
 <script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Listen for changes in dropdowns
+    document.querySelectorAll('.state-select').forEach(select => {
+        select.addEventListener('change', function () {
+            const selectedValue = this.value;
+            const parentRow = this.closest('.state-mapping-row');
 
+            if (selectedValue === 'enter_manually') {
+                // Replace the dropdown with an input field
+                const inputField = document.createElement('input');
+                inputField.type = 'text';
+                inputField.className = 'form-control';
+                inputField.name = this.name; // Preserve the name attribute
+                inputField.placeholder = 'Please enter a valid state';
+
+                // Replace the dropdown with the input field
+                parentRow.querySelector('.state-select').replaceWith(inputField);
+            }
+        });
+    });
+});
 document.addEventListener('DOMContentLoaded', function () {
     // Listen for form submission
     const saveMappingButton = document.querySelector('button[name="state_mapping_submit"]');
@@ -1583,7 +1497,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 </script>
 
-<?php } ?>
+
                                 
 
 
@@ -1594,7 +1508,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <!-- Phone Number  Accordion Item -->
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="phoneHeading">
-                            <button class="accordion-button collapsed " type="button" data-bs-toggle="collapse" data-bs-target="#phoneCollapse" aria-expanded="false" aria-controls="phoneCollapse">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#phoneCollapse" aria-expanded="true" aria-controls="phoneCollapse">
                                 Phone Number Modification
                             </button>
                         </h2>
@@ -1660,7 +1574,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                             <!-- Address  Accordion Item -->
             <div class="accordion-item">
                         <h2 class="accordion-header" id="addressHeading">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#addressCollapse" aria-expanded="false" aria-controls="addressCollapse">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#addressCollapse" aria-expanded="true" aria-controls="addressCollapse">
                                 Address Mapping
                             </button>
                         </h2>
