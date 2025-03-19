@@ -362,47 +362,72 @@ if (isset($_POST['upload_csv']) && !empty($_FILES['csv_file'])) {
             fclose($handle);
 
             if (!empty($csvData)) {
-                $_SESSION['step'] = 1;
-                $_SESSION['csvData'] = $csvData;
-                
-                // Process headers and replace empty ones with "empty"
-                $headers = $csvData[0];
-                foreach ($headers as $key => $header) {
-                    if (trim($header) === '') {
-                        $headers[$key] = 'empty';
-                    }
-                }
-
-                $_SESSION['headers'] = $headers;
+                $_SESSION['step']=1;
+                $_SESSION['csvData']=$csvData;
+                $_SESSION['headers'] = $csvData[0];
                 $_SESSION['rows'] = array_slice($csvData, 1);
+                $_SESSION['uploaded_file'] = $uploadedFilePath;
+                $_SESSION['options'] =$fields = [
+                                            'id',
+                                            'first_name',
+                                            'last_name',
+                                            'middle_name',
+                                            'nickname',
+                                            'initials',
+                                            'birthdate',
+                                            'extra_suffix',
+                                            'ssn',
+                                            'date_of_death',
+                                            'contact_type_id',
+                                            'contact_type_name',
+                                            'articulation_id',
+                                            'articulation',
+                                            'dress_id',
+                                            'dress',
+                                            'education_id',
+                                            'education',
+                                            'gender_id',
+                                            'gender',
+                                            'language_id',
+                                            'language',
+                                            'marital_status_id',
+                                            'marital_status',
+                                            'parent_id',
+                                            'parent',
+                                            'primary_address_id',
+                                            'primary_address_street',
+                                            'primary_address_street_number',
+                                            'primary_address_nickname',
+                                            'primary_address_po_box',
+                                            'primary_address_suite',
+                                            'primary_address_is_registered_agent',
+                                            'primary_address_city_id',
+                                            'primary_address_city',
+                                            'primary_address_country_id',
+                                            'primary_address_country',
+                                            'primary_address_county_id',
+                                            'primary_address_county',
+                                            'primary_address_state_id',
+                                            'primary_address_state',
+                                            'primary_address_zip_code_id',
+                                            'primary_address_zip_code',
+                                            'contact_email_id',
+                                            'contact_email',
+                                            'phone_number_id',
+                                            'phone_number',
+                                            'phone_number_area_code',
+                                            'phone_number_country_code',
+                                            'phone_number_extension',
+                                            'phone_number_extension_label',
+                                            'phone_number_nickname',
+                                            'phone_number_is_ada',
+                                            'phone_number_is_registered_agent',
+                                            'additional_fields_data',
+                                            'is_archived',
+                                            'data',
+                                            'note'
+                                        ];
 
-                // Create a new CSV file with updated headers
-                $updatedFilePath = $uploadDir . 'updated_' . basename($_FILES['csv_file']['name']);
-                if (($handle = fopen($updatedFilePath, 'w')) !== false) {
-                    fputcsv($handle, $headers);
-                    foreach ($_SESSION['rows'] as $row) {
-                        fputcsv($handle, $row);
-                    }
-                    fclose($handle);
-                }
-
-                $_SESSION['uploaded_file'] = $updatedFilePath; // Store updated file path in session
-                $_SESSION['options'] = [
-                    'id', 'first_name', 'last_name', 'middle_name', 'nickname', 'initials', 'birthdate',
-                    'extra_suffix', 'ssn', 'date_of_death', 'contact_type_id', 'contact_type_name',
-                    'articulation_id', 'articulation', 'dress_id', 'dress', 'education_id', 'education',
-                    'gender_id', 'gender', 'language_id', 'language', 'marital_status_id', 'marital_status',
-                    'parent_id', 'parent', 'primary_address_id', 'primary_address_street',
-                    'primary_address_street_number', 'primary_address_nickname', 'primary_address_po_box',
-                    'primary_address_suite', 'primary_address_is_registered_agent', 'primary_address_city_id',
-                    'primary_address_city', 'primary_address_country_id', 'primary_address_country',
-                    'primary_address_county_id', 'primary_address_county', 'primary_address_state_id',
-                    'primary_address_state', 'primary_address_zip_code_id', 'primary_address_zip_code',
-                    'contact_email_id', 'contact_email', 'phone_number_id', 'phone_number',
-                    'phone_number_area_code', 'phone_number_country_code', 'phone_number_extension',
-                    'phone_number_extension_label', 'phone_number_nickname', 'phone_number_is_ada',
-                    'phone_number_is_registered_agent', 'additional_fields_data', 'is_archived', 'data', 'note'
-                ];
             } else {
                 echo "Error: Empty CSV file.";
             }
@@ -413,6 +438,7 @@ if (isset($_POST['upload_csv']) && !empty($_FILES['csv_file'])) {
         echo "Error: Failed to upload file.";
     }
 }
+
 
 
 // Extract unique states and their counts from the uploaded file
@@ -1448,89 +1474,6 @@ if (isset($_POST['page_reload']) && $_POST['page_reload'] === 'true') {
     header("Location: " . $_SERVER['PHP_SELF']); // Redirect to clear POST data
     exit;
 }
-
-
-
-function processCsvAndRemoveColumn($note) {
-    // Step 1: Check if the uploaded file path exists in the session
-    if (!isset($_SESSION['uploaded_file'])) {
-        return json_encode(['status' => 'error', 'message' => 'No uploaded file found in the session.']);
-    }
-
-    $uploadedFilePath = $_SESSION['uploaded_file'];
-
-    // Step 2: Read the CSV file content
-    if (($handle = fopen($uploadedFilePath, 'r')) !== false) {
-        $csvData = [];
-        while (($row = fgetcsv($handle, 0, ',')) !== false) {
-            $csvData[] = $row;
-        }
-        fclose($handle);
-
-        if (empty($csvData)) {
-            return json_encode(['status' => 'error', 'message' => 'The uploaded file is empty or could not be read.']);
-        }
-
-        // Step 3: Extract headers and rows
-        $headers = $csvData[0];
-        $rows = array_slice($csvData, 1);
-
-        // Step 4: Find the index of the header matching the note value
-        $headerIndex = array_search($note, $headers);
-
-        if ($headerIndex !== false) {
-            // Step 5: Remove the header from the headers array
-            unset($headers[$headerIndex]);
-            $headers = array_values($headers); // Reindex the headers array
-
-            // Step 6: Remove the corresponding column values from each row
-            foreach ($rows as &$row) {
-                unset($row[$headerIndex]);
-                $row = array_values($row); // Reindex the row array
-            }
-
-            // Step 7: Combine the updated headers and rows back into CSV format
-            $updatedCsvData = array_merge([$headers], $rows);
-
-            // Step 8: Write the updated CSV data back to the file
-            if (($handle = fopen($uploadedFilePath, 'w')) !== false) {
-                foreach ($updatedCsvData as $row) {
-                    fputcsv($handle, $row);
-                }
-                fclose($handle);
-
-                // Step 9: Update the session variables
-                $_SESSION['headers'] = $headers;
-                $_SESSION['rows'] = $rows;
-                $_SESSION['csvData'] = $updatedCsvData;
-
-                return json_encode(['status' => 'success', 'message' => "Header '$note' and its column removed successfully."]);
-            } else {
-                return json_encode(['status' => 'error', 'message' => 'Failed to write the updated CSV data back to the file.']);
-            }
-        } else {
-            return json_encode(['status' => 'error', 'message' => "Header '$note' not found in the CSV file."]);
-        }
-    } else {
-        return json_encode(['status' => 'error', 'message' => 'Failed to open the uploaded file for reading.']);
-    }
-}
-
-// Handle AJAX request to remove a header and column
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['note'])) {
-    $note = trim($_POST['note']);
-
-    if (!empty($note)) {
-        echo processCsvAndRemoveColumn($note);
-        die;
-    } else {
-        echo json_encode(['status' => 'error', 'message' => 'No note value received.']);
-        die;
-    }
-}
-
-
-
 
 
 
@@ -2921,39 +2864,9 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
-                    if (removeTarget) {
-                    // Extract the value of the input field inside the targeted row
-                    const noteInput = removeTarget.querySelector('input[name^="custom_headers"]');
-                    const noteValue = noteInput ? noteInput.value : null;
-
-                    if (noteValue) {
-                        // Send the extracted value via AJAX
-                        const xhr = new XMLHttpRequest();
-                        xhr.open("POST", "process.php", true);
-                        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
-                        xhr.onreadystatechange = function () {
-                            if (xhr.readyState === 4) {
-                                if (xhr.status === 200) {
-                                    try {
-                                        const response = JSON.parse(xhr.responseText);
-                                        console.log(response.message); // Log the server response
-                                    } catch (e) {
-                                        console.error("Invalid JSON response:", xhr.responseText);
-                                    }
-                                } else {
-                                    console.error("AJAX request failed with status:", xhr.status);
-                                }
-                            }
-                        };
-
-                        // Send the note value to process.php
-                        xhr.send(`note=${encodeURIComponent(noteValue)}`);
-                    }
-
-                    // Remove the targeted row after processing
-                    removeTarget.remove();
-                }
+        if (removeTarget) {
+            removeTarget.remove(); // Remove the targeted row
+        }
         var myModalEl = document.getElementById('confirmDeleteModal');
         var modal = bootstrap.Modal.getInstance(myModalEl);
         modal.hide(); // Hide the modal after removal
