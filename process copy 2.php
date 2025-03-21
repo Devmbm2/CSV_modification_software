@@ -22,7 +22,7 @@ if (!isset($_SESSION['custom_headers'])) {
 }
 
 
-$_SESSION['step'] = 0;
+
 $_SESSION['show_states_mapping'] = 0;
 $_SESSION['show_city_mapping'] = 0;
 
@@ -1537,8 +1537,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['note'])) {
 ?>
 
 
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1557,133 +1555,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['note'])) {
             max-height: 400px;
             overflow-y: auto;
         }
-        body {
-            background-color: #f4f6f9;
-            animation: fadeIn 1.5s ease-in-out;
-        }
-        .container {
-            animation: slideUp 1s ease-in-out;
-        }
-        .stepwizard {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-            margin-bottom: 30px;
-        }
-        .stepwizard::before {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: #ccc;
-            z-index: 0;
-            transform: translateY(-50%);
-        }
-        .stepwizard-step {
-            text-align: center;
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .btn-circle {
-            width: 50px;
-            height: 50px;
-            line-height: 50px;
-            border-radius: 50%;
-            font-size: 20px;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #ccc;
-            color: white;
-            border: none;
-            position: relative;
-            z-index: 2;
-        }
-        .btn-circle i {
-            vertical-align: middle;
-        }
-        .btn-circle:hover {
-            transform: scale(1.1);
-        }
-        .btn-circle.btn-success {
-            background-color: #28a745;
-        }
-        .panel {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            animation: fadeIn 1s ease-in-out;
-        }
-        .btn:hover {
-            transform: translateY(-3px);
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+
+
+        
     </style>
 </head>
-<body>
-    <div class="container mt-5">
-        <h3 class="text-center mb-4">CSV Processing Tool</h3>
-        <div class="stepwizard">
-            <div class="stepwizard-step">
-                <a href="#step-1" class="btn btn-success btn-circle"><i class="fas fa-upload"></i></a>
-                <!-- <p>Upload</p> -->
-            </div>
-            <div class="stepwizard-step">
-                <a href="#step-2" class="btn btn-secondary btn-circle disabled"><i class="fas fa-cogs"></i></a>
-                <!-- <p>Process</p> -->
-            </div>
-            <div class="stepwizard-step">
-                <a href="#step-3" class="btn btn-secondary btn-circle disabled"><i class="fas fa-download"></i></a>
-                <!-- <p>Download</p> -->
-            </div>
-        </div>
-        <form>
-            <div class="panel setup-content" id="step-1">
-                <h4 class="mb-3  d-flex justify-content-center">Upload CSV</h4>
+<body class="container mt-5">
+    <h3 class="mb-4 text-center">CSV Processing Tool</h3>
+    <div class="accordion" id="csvProcessorAccordion">
+                <!-- Step 1: Upload CSV -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            Step 1: Upload CSV File
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse <?php echo ($_SESSION['step']==0) ? 'show' : ''; ?>" aria-labelledby="headingOne" data-bs-parent="#csvProcessorAccordion">
+                        <div class="accordion-body">
+                            <form method="post" enctype="multipart/form-data" class="mb-4 text-center">
+                                <div class="mb-3 d-flex justify-content-center">
+                                    <input type="file" name="csv_file" id="csv_file" class="form-control" style="width: 300px;" required>
+                                </div>
 
-                <div class="container mt-2 d-flex flex-column align-items-center">
-                    <form method="post" enctype="multipart/form-data" action="process.php" class="mb-4 text-center w-100">
-                        <!-- File Input -->
-                        <div class="mb-3 w-100 d-flex justify-content-center">
-                            <input type="file" name="csv_file" id="csv_file" class="form-control" style="max-width: 300px;" required>
+                                  <!-- Display the attached file if it exists -->
+                                    <?php if (isset($_SESSION['uploaded_file'])): ?>
+                                        <div class="mb-3 text-success">
+                                            File Attached: <?php echo basename($_SESSION['uploaded_file']); ?>
+                                        </div>
+                                    <?php endif; ?>
+
+
+
+                                <button type="submit" name="upload_csv" class="btn btn-primary">Upload</button>
+                            </form>
                         </div>
-
-                        <!-- Display the attached file if it exists -->
-                        <?php if (isset($_SESSION['uploaded_file'])): ?>
-                            <div class="mb-3 text-success text-center w-100">
-                                File Attached: <?php echo htmlspecialchars(basename($_SESSION['uploaded_file'])); ?>
-                            </div>
-                        <?php endif; ?>
-
-                        <!-- Submit Button -->
-                        <button type="submit" name="upload_csv" class="btn btn-primary">Upload</button>
-                    </form>
+                    </div>
                 </div>
 
-
-            </div>
-            <div class="panel setup-content" id="step-2" style="display: block;"   >
-                <h4>Process Data</h4>
-                
-
-
-                <div class="accordion" id="csvProcessorAccordion">
-     
 
                 <script>
 
@@ -3189,43 +3097,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  
 
-
-
-
-
-            </div>
-            <div class="panel setup-content" id="step-3" style="display: none;">
-                <h4>Download Processed File</h4>
-                <button class="btn btn-success">Download</button>
-            </div>
-        </form>
-    </div>
-    <script>
-        $(document).ready(function () {
-            var navListItems = $('.stepwizard-step a'),
-                allWells = $('.setup-content'),
-                allNextBtn = $('.nextBtn');
-            allWells.hide();
-            navListItems.click(function (e) {
-                e.preventDefault();
-                var $target = $($(this).attr('href'));
-                if (!$(this).hasClass('disabled')) {
-                    navListItems.removeClass('btn-success').addClass('btn-secondary');
-                    $(this).addClass('btn-success');
-                    allWells.hide();
-                    $target.fadeIn();
-                }
-            });
-            allNextBtn.click(function () {
-                var curStep = $(this).closest(".setup-content"),
-                    curStepBtn = curStep.attr("id"),
-                    nextStepWizard = $('div.stepwizard-step a[href="#' + curStepBtn + '"]').parent().next().children("a");
-                nextStepWizard.removeClass('disabled').trigger('click');
-            });
-            $('div.stepwizard-step a.btn-success').trigger('click');
-        });
-    </script>
 </body>
 </html>
 

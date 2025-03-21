@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Upload & Mapping</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f8f9fa;
+        }
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .popup-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .drag-area {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+        .drag-area:hover {
+            border-color: #0d6efd;
+        }
+        .drag-area.active {
+            border-color: #0d6efd;
+        }
+        .file-input {
+            display: none;
+        }
+        .hidden {
+            display: none;
+        }
+        .table-container {
+            margin-top: 20px;
+        }
+        /* Table container styling */
+.table-container {
+    margin-top: 20px;
+}
+
+/* Wrapper for the table to handle overflow */
+.table-wrapper {
+    max-height: 400px; /* Adjust this value based on your layout */
+    overflow: auto; /* Enable scrolling */
+    border: 1px solid #ddd; /* Optional: Add a border for better visibility */
+    border-radius: 8px; /* Optional: Rounded corners */
+}
+
+/* Ensure the table header stays fixed during vertical scrolling */
+.table-wrapper thead th {
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa; /* Match the background color of the table */
+    z-index: 1;
+}
+
+/* Style for the table */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd; /* Add borders for better readability */
+}
+
+.table th {
+    background-color: #0d6efd; /* Header background color */
+    color: rgb(24, 2, 2); /* Header text color */
+}
+    </style>
+</head>
+<body>
+    <h1 class="display-4">CSV Processing Tool</h1>
+    <div id="csvUploadSection" class="container  d-flex justify-content-center">
+        <button id="uploadButton" class="btn btn-primary btn-lg">Upload File</button>
+
+        <!-- Popup -->
+        <div id="popupOverlay" class="popup-overlay">
+            <div class="popup-content">
+                <h4>Upload File</h4>
+                <p>Drag & Drop your file here or click to browse</p>
+                <div id="dragArea" class="drag-area">
+                    <p>Drag & Drop or <span style="color: #0d6efd;">Browse File</span></p>
+                </div>
+                <input id="fileInput" type="file" class="file-input" accept=".csv">
+                <button id="uploadFileButton" class="btn btn-primary">Upload File</button>
+            </div>
+        </div>
+
+    </div>
+    
+
+    <!-- Mapping Section -->
+   <!-- Mapping Section -->
+<div id="mappingSection" class="hidden table-container">
+    <h3>Map Columns</h3>
+    <div class="table-wrapper">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Fields</th>
+                    <th>File Columns</th>
+                    <th>Reset</th>
+                </tr>
+            </thead>
+            <tbody id="mappingTableBody"></tbody>
+        </table>
+    </div>
+    <button id="confirmMapping" class="btn btn-success">Confirm Mapping</button>
+</div>
+
+    <script>
+        const uploadButton = document.getElementById('uploadButton');
+        const popupOverlay = document.getElementById('popupOverlay');
+        const dragArea = document.getElementById('dragArea');
+        const fileInput = document.getElementById('fileInput');
+        const uploadFileButton = document.getElementById('uploadFileButton');
+
+        uploadButton.addEventListener('click', () => {
+            popupOverlay.style.display = 'flex';
+        });
+
+        popupOverlay.addEventListener('click', (e) => {
+            if (e.target === popupOverlay) {
+                popupOverlay.style.display = 'none';
+            }
+        });
+
+        dragArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dragArea.classList.add('active');
+        });
+
+        dragArea.addEventListener('dragleave', () => {
+            dragArea.classList.remove('active');
+        });
+
+        dragArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dragArea.classList.remove('active');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        dragArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', () => {
+            const file = fileInput.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        });
+
+        uploadFileButton.addEventListener('click', () => {
+            const file = fileInput.files[0];
+            if (file) {
+                sendAjaxRequest(file);
+            } else {
+                alert('Please select a file to upload.');
+            }
+        });
+
+        function handleFile(file) {
+            if (file.type !== 'text/csv') {
+                alert('Only CSV files are allowed.');
+                return;
+            }
+            dragArea.innerHTML = `<p>Selected File: ${file.name}</p>`;
+            fileInput.files = new DataTransfer().files;
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+        }
+
+        function sendAjaxRequest(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    $.ajax({
+        url: "form.php",
+        type: "POST",
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function (response) {
+            if (response.success) {
+                popupOverlay.style.display = 'none'; // Hide the popup
+                document.getElementById('uploadButton').style.display = 'none';                
+                generateMappingTable(response.columns); // Generate the mapping table
+            } else {
+                alert("Error processing CSV: " + response.message);
+            }
+        },
+        error: function () {
+            alert("An error occurred while uploading the file.");
+        }
+    });
+}
+
+        function generateMappingTable(headers) {
+            let predefinedFields = headers;
+            let tableBody = $("#mappingTableBody");
+            tableBody.empty();
+
+            predefinedFields.forEach(field => {
+                let row = `<tr>
+                    <td>${field}</td>
+                    <td>
+                        <select class="form-control column-select">
+                            <option value="">Select a column</option>
+                            ${headers.map(h => `<option value="${h}">${h}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td><button class="btn btn-secondary reset-btn">Reset</button></td>
+                </tr>`;
+                tableBody.append(row);
+            });
+
+            $("#mappingSection").removeClass("hidden");
+
+            $(".reset-btn").click(function () {
+                $(this).closest("tr").find(".column-select").val("");
+            });
+
+            $("#confirmMapping").click(function () {
+                let mappings = [];
+                $(".column-select").each(function (index) {
+                    let selectedColumn = $(this).val();
+                    let fieldName = predefinedFields[index];
+                    mappings.push({ field: fieldName, column: selectedColumn });
+                });
+
+                console.log("Mappings:", mappings);
+                alert("Mappings saved successfully!");
+            });
+        }
+    </script>
+</body>
+</html>
