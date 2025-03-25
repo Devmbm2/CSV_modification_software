@@ -5,6 +5,7 @@ use libphonenumber\PhoneNumberUtil;
 use libphonenumber\PhoneNumberFormat;
 
 session_start();
+$_SESSION['step']=0;
 
 
 // Initialize session variables if they don't exist
@@ -22,7 +23,7 @@ if (!isset($_SESSION['custom_headers'])) {
 }
 
 
-$_SESSION['step'] = 0;
+
 $_SESSION['show_states_mapping'] = 0;
 $_SESSION['show_city_mapping'] = 0;
 
@@ -1228,54 +1229,135 @@ if (!isset($_SESSION['field_mapping'])) {
     $_SESSION['custom_headers'] = $customHeaders;
 }
 
-if (isset($_POST['process_csv']) && !empty($_POST['field_mapping']) && !empty($_SESSION['uploaded_file'])) {
+
+/// nnn 
+
+
+// if (isset($_POST['process_csv']) && !empty($_POST['custom_headers']) && !empty($_SESSION['uploaded_file'])) {
+//     $uploadedFilePath = $_SESSION['uploaded_file'];
+//     $fieldMapping = $_POST['field_mapping'];
+//     $customHeaders = $_POST['custom_headers'] ?? [];
+//     $_SESSION['field_mapping'] = $fieldMapping;
+//     $_SESSION['custom_headers'] = $customHeaders;
+
+//     $processedArray = [];
+//     foreach ($customHeaders as $originalKey => $originalValue) {
+//         $processedValue = preg_replace('/#\d+/', '', $originalKey);
+//         $processedArray[$originalValue] = $processedValue;
+//     }
+
+//     $outputCsvPath = 'uploads/mapped_data.csv';
+
+//     if (($inputHandle = fopen($uploadedFilePath, 'r')) !== false) {
+//         $outputHandle = fopen($outputCsvPath, 'w');
+
+//         // Read original headers
+//         $originalHeaders = fgetcsv($inputHandle);
+//         if ($originalHeaders === false) {
+//             fclose($inputHandle);
+//             die("Error reading CSV headers.");
+//         }
+
+//         // Create a map from original header names to their indices
+//         $originalHeaderIndices = array_flip($originalHeaders);
+
+//         // Write new headers to output CSV
+//         fputcsv($outputHandle, array_keys($processedArray));
+
+//         // Process each row
+//         while (($row = fgetcsv($inputHandle)) !== false) {
+//             $newRow = [];
+//             foreach ($processedArray as $newHeader => $originalHeader) {
+//                 if (isset($originalHeaderIndices[$originalHeader])) {
+//                     $index = $originalHeaderIndices[$originalHeader];
+//                     $newRow[] = $row[$index];
+//                 } else {
+//                     $newRow[] = ''; // Handle missing headers by leaving them empty
+//                 }
+//             }
+//             fputcsv($outputHandle, $newRow);
+//         }
+
+//         fclose($inputHandle);
+//         fclose($outputHandle);
+
+//         $_SESSION['output_csv'] = $outputCsvPath;
+//         // Assuming update_file is a function to handle file updates
+//         update_file($outputCsvPath);
+//         $_SESSION['step'] = 6;
+//     } else {
+//         echo "Error: Failed to process file.";
+//     }
+// }
+
+
+if (isset($_POST['process_csv']) && !empty($_POST['custom_headers']) && !empty($_SESSION['uploaded_file'])) {
     $uploadedFilePath = $_SESSION['uploaded_file'];
-    $fieldMapping = $_POST['field_mapping']; // Generic field mappings
-    $customHeaders = $_POST['custom_headers'] ?? []; // Custom headers
+    $fieldMapping = $_POST['field_mapping'];
+    $customHeaders = $_POST['custom_headers'] ?? [];
     $_SESSION['field_mapping'] = $fieldMapping;
     $_SESSION['custom_headers'] = $customHeaders;
 
+    // Process the custom headers
+    $processedArray = [];
+    foreach ($customHeaders as $originalKey => $originalValue) {
+        $processedValue = preg_replace('/#\d+/', '', $originalKey);
+        $processedArray[$originalValue] = $processedValue;
+    }
+
     $outputCsvPath = 'uploads/mapped_data.csv';
 
-    if (($handle = fopen($uploadedFilePath, 'r')) !== false) {
-        $headers = fgetcsv($handle);
-        $validColumns = [];
-        $selectedColumns = [];
+    // Read all data from input file first
+    $inputData = [];
+    $originalHeaders = [];
+    if (($inputHandle = fopen($uploadedFilePath, 'r')) !== false) {
+        // Read headers
+        $originalHeaders = fgetcsv($inputHandle);
+        if ($originalHeaders === false) {
+            fclose($inputHandle);
+            die("Error reading CSV headers.");
+        }
+        
+        // Read all rows
+        while (($row = fgetcsv($inputHandle)) !== false) {
+            $inputData[] = $row;
+        }
+        fclose($inputHandle);
+    } else {
+        die("Error: Failed to open input file.");
+    }
 
-        // Identify valid columns (non-empty headers)
-        foreach ($headers as $index => $header) {
-            // Check if the header exists in the field mapping
-            if (!empty(trim($header)) && isset($fieldMapping[$header]) && !empty($fieldMapping[$header])) {
-                $validColumns[$index] = $header;
-                $selectedColumns[] = $customHeaders[$header] ?? $fieldMapping[$header]; // Use custom header if available
+    // Process and write to output file
+    if (($outputHandle = fopen($outputCsvPath, 'w')) !== false) {
+        // Create header map
+        $originalHeaderIndices = array_flip($originalHeaders);
+        
+        // Write new headers
+        fputcsv($outputHandle, array_keys($processedArray));
+
+        // Process each row
+        foreach ($inputData as $row) {
+            $newRow = [];
+            foreach ($processedArray as $newHeader => $originalHeader) {
+                // Use the index to get the actual value from the row
+                $index = $originalHeaderIndices[$originalHeader] ?? null;
+                $newRow[] = $index !== null && isset($row[$index]) ? $row[$index] : ''; // Add the actual value or empty string
             }
+            fputcsv($outputHandle, $newRow);
         }
 
-        // Store selected columns in session
-        $_SESSION['selected_columns'] = $selectedColumns;
-
-        $outputHandle = fopen($outputCsvPath, 'w');
-
-        // Write mapped headers
-        fputcsv($outputHandle, $selectedColumns);
-
-        // Process CSV rows
-        while (($row = fgetcsv($handle)) !== false) {
-            $mappedRow = [];
-            foreach ($validColumns as $index => $header) {
-                $mappedRow[] = $row[$index] ?? ''; // Add only selected columns
-            }
-            fputcsv($outputHandle, $mappedRow);
-        }
-
-        fclose($handle);
         fclose($outputHandle);
         $_SESSION['output_csv'] = $outputCsvPath;
+        update_file($outputCsvPath);
         $_SESSION['step'] = 6;
     } else {
-        echo "Error: Failed to process file.";
+        die("Error: Failed to open output file.");
     }
 }
+
+
+
+
 
 
 
@@ -1537,8 +1619,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['note'])) {
 ?>
 
 
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1557,133 +1637,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['note'])) {
             max-height: 400px;
             overflow-y: auto;
         }
-        body {
-            background-color: #f4f6f9;
-            animation: fadeIn 1.5s ease-in-out;
-        }
-        .container {
-            animation: slideUp 1s ease-in-out;
-        }
-        .stepwizard {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-            margin-bottom: 30px;
-        }
-        .stepwizard::before {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: #ccc;
-            z-index: 0;
-            transform: translateY(-50%);
-        }
-        .stepwizard-step {
-            text-align: center;
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .btn-circle {
-            width: 50px;
-            height: 50px;
-            line-height: 50px;
-            border-radius: 50%;
-            font-size: 20px;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #ccc;
-            color: white;
-            border: none;
-            position: relative;
-            z-index: 2;
-        }
-        .btn-circle i {
-            vertical-align: middle;
-        }
-        .btn-circle:hover {
-            transform: scale(1.1);
-        }
-        .btn-circle.btn-success {
-            background-color: #28a745;
-        }
-        .panel {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            animation: fadeIn 1s ease-in-out;
-        }
-        .btn:hover {
-            transform: translateY(-3px);
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+
+
+        
     </style>
 </head>
-<body>
-    <div class="container mt-5">
-        <h3 class="text-center mb-4">CSV Processing Tool</h3>
-        <div class="stepwizard">
-            <div class="stepwizard-step">
-                <a href="#step-1" class="btn btn-success btn-circle"><i class="fas fa-upload"></i></a>
-                <!-- <p>Upload</p> -->
-            </div>
-            <div class="stepwizard-step">
-                <a href="#step-2" class="btn btn-secondary btn-circle disabled"><i class="fas fa-cogs"></i></a>
-                <!-- <p>Process</p> -->
-            </div>
-            <div class="stepwizard-step">
-                <a href="#step-3" class="btn btn-secondary btn-circle disabled"><i class="fas fa-download"></i></a>
-                <!-- <p>Download</p> -->
-            </div>
-        </div>
-        <form>
-            <div class="panel setup-content" id="step-1">
-                <h4 class="mb-3  d-flex justify-content-center">Upload CSV</h4>
+<body class="container mt-5">
+    <h3 class="mb-4 text-center">CSV Processing Tool</h3>
+    <div class="accordion" id="csvProcessorAccordion">
+                <!-- Step 1: Upload CSV -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            Step 1: Upload CSV File
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse <?php echo ($_SESSION['step']==0) ? 'show' : ''; ?>" aria-labelledby="headingOne" data-bs-parent="#csvProcessorAccordion">
+                        <div class="accordion-body">
+                            <form method="post" enctype="multipart/form-data" class="mb-4 text-center">
+                                <div class="mb-3 d-flex justify-content-center">
+                                    <input type="file" name="csv_file" id="csv_file" class="form-control" style="width: 300px;" required>
+                                </div>
 
-                <div class="container mt-2 d-flex flex-column align-items-center">
-                    <form method="post" enctype="multipart/form-data" action="process.php" class="mb-4 text-center w-100">
-                        <!-- File Input -->
-                        <div class="mb-3 w-100 d-flex justify-content-center">
-                            <input type="file" name="csv_file" id="csv_file" class="form-control" style="max-width: 300px;" required>
+                                  <!-- Display the attached file if it exists -->
+                                    <?php if (isset($_SESSION['uploaded_file'])): ?>
+                                        <div class="mb-3 text-success">
+                                            File Attached: <?php echo basename($_SESSION['uploaded_file']); ?>
+                                        </div>
+                                    <?php endif; ?>
+
+
+
+                                <button type="submit" name="upload_csv" class="btn btn-primary">Upload</button>
+                            </form>
                         </div>
-
-                        <!-- Display the attached file if it exists -->
-                        <?php if (isset($_SESSION['uploaded_file'])): ?>
-                            <div class="mb-3 text-success text-center w-100">
-                                File Attached: <?php echo htmlspecialchars(basename($_SESSION['uploaded_file'])); ?>
-                            </div>
-                        <?php endif; ?>
-
-                        <!-- Submit Button -->
-                        <button type="submit" name="upload_csv" class="btn btn-primary">Upload</button>
-                    </form>
+                    </div>
                 </div>
 
-
-            </div>
-            <div class="panel setup-content" id="step-2" style="display: block;"   >
-                <h4>Process Data</h4>
-                
-
-
-                <div class="accordion" id="csvProcessorAccordion">
-     
 
                 <script>
 
@@ -1829,7 +1819,6 @@ if (window.history.replaceState) {
                                 <?php
                                 if (!isset($_SESSION['groupedStates']) || empty($_SESSION['groupedStates'])) {
                                     echo '<p class="text-center">No states available for mapping.</p>';
-                                    return;
                                 }
                                 if($_SESSION['show_states_mapping']==1){ ?>
 
@@ -2201,6 +2190,7 @@ if (window.history.replaceState) {
                                             foreach ($_SESSION['headers'] as $header): 
                                                 if (stripos($header, 'city') !== false): // Case-insensitive search for "state"
                                             ?>
+                                            
                                                 <option value="<?php echo htmlspecialchars($header); ?>" 
                                                     <?php echo (isset($_SESSION['city_column']) && $_SESSION['city_column'] === $header) ? 'selected' : ''; ?>>
                                                     <?php echo htmlspecialchars($header); ?>
@@ -2226,7 +2216,7 @@ if (window.history.replaceState) {
                                 <?php
                                 if (!isset($_SESSION['groupedStates']) || empty($_SESSION['groupedStates'])) {
                                     echo '<p class="text-center">No states available for mapping.</p>';
-                                    return;
+                                    
                                 }
                                 if($_SESSION['show_city_mapping']==1){ ?>
 
@@ -2299,8 +2289,11 @@ if (window.history.replaceState) {
                                                                                     <option value="enter_manually">Enter Manually</option>
                                                                                     <?php  foreach ($states as $status): 
                                                                                           $status = preg_replace('/\s*\(\d+\)/', '', $status);
+                                                                                          $state = preg_replace('/\s*\(\d+\)/', '', $state);
+
                                                                                                 ?>
-                                                                                            <option value="<?php echo htmlspecialchars($status); ?>" >
+                                                                                            <option value="<?php echo htmlspecialchars($status); ?>"
+                                                                                            <?php echo ( strtolower($status) == strtolower($state)  ) ? 'selected' : ''; ?>>
                                                                                             <?php echo htmlspecialchars($status); ?>  
                                                                                         </option>
                                                                                     <?php endforeach; ?>
@@ -2873,7 +2866,7 @@ if (window.history.replaceState) {
 
 
 
-
+            <!-- /// nnn  -->
             <div class="accordion-item">
     <h2 class="accordion-header" id="fieldMappingHeading">
         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
@@ -2908,6 +2901,7 @@ if (window.history.replaceState) {
                                                         ?>
                                                             <option value="<?php echo htmlspecialchars($option); ?>" <?php echo $selected; ?>><?php echo htmlspecialchars($option); ?></option>
                                                         <?php endforeach; ?>
+                                                        <option value="add_new_empty_column" >Add New Empty Column </option>
                             </select>
                             <input type="text" class="form-control me-2 custom-header-input"
                                 name="custom_headers[<?php echo htmlspecialchars($header); ?>]"
@@ -2952,26 +2946,26 @@ if (window.history.replaceState) {
     </div>
 </div>
 
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    let fieldCounter = 1; // Counter for unique field names
+
     // Add event listener to dynamically update input fields when a dropdown value changes
     document.querySelectorAll('.field-mapping-select').forEach(select => {
         select.addEventListener('change', function () {
-            const parentRow = this.closest('.mapping-row');
-            const inputField = parentRow.querySelector('.custom-header-input');
-            inputField.value = this.value; // Update input field with selected value
+            updateFieldNames(this);
         });
     });
 
     // Add new row button functionality
     document.getElementById('addRow').addEventListener('click', function () {
-        let newRowId = 'new_field_' + Date.now();
+        let uniqueId = `new_field_${fieldCounter++}`;
         let rowHtml = `
             <div class="row mb-3 mapping-row">
                 <div class="col-md-12 d-flex align-items-center">
-                    <select class="form-select me-2 field-mapping-select" name="field_mapping[${newRowId}]" 
-                        onchange="updateFieldNames(this)"
-                          >
+                    <select class="form-select me-2 field-mapping-select" name="field_mapping[${uniqueId}]" 
+                        onchange="updateFieldNames(this)">
                         <option value="">Select Field</option>
                         <?php 
                         $savedMappings = !empty($_SESSION['selected_columns']) ? $_SESSION['selected_columns'] : $_SESSION['headers'];
@@ -2980,32 +2974,24 @@ document.addEventListener('DOMContentLoaded', function () {
                             <?php echo htmlspecialchars($option); ?>
                         </option>
                         <?php endforeach; ?>
+                        <option value="add_new_empty_column">Add New Empty Column</option>
                     </select>
                     <input type="text" class="form-control me-2 custom-header-input"
-                        name="custom_headers[${newRowId}]"
-                        placeholder="Enter new field name" value="">
+                        name="custom_headers[${uniqueId}]"
+                        placeholder="Enter new Column name" value="">
                     <button type="button" class="btn btn-danger remove-row" onclick="showConfirmModal(this)">
                         <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
             </div>`;
         document.getElementById('mappingFields').insertAdjacentHTML('beforeend', rowHtml);
-
-        // Add change listener to newly added select elements
-        document.querySelectorAll('.field-mapping-select').forEach(select => {
-            select.addEventListener('change', function () {
-                const parentRow = this.closest('.mapping-row');
-                const inputField = parentRow.querySelector('.custom-header-input');
-                inputField.value = this.value; // Update input field with selected value
-            });
-        });
     });
 
     // Confirmation modal functionality for removing rows
     let removeTarget = null;
 
     window.showConfirmModal = function (element) {
-        removeTarget = element.closest('.mapping-row'); // Store reference to the row
+        removeTarget = element.closest('.mapping-row');
         var myModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'), {
             keyboard: false
         });
@@ -3013,68 +2999,54 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
-                    if (removeTarget) {
-                    // Extract the value of the input field inside the targeted row
-                    const noteInput = removeTarget.querySelector('input[name^="custom_headers"]');
-                    const noteValue = noteInput ? noteInput.value : null;
+        if (removeTarget) {
+            const noteInput = removeTarget.querySelector('input[name^="custom_headers"]');
+            const noteValue = noteInput ? noteInput.value : null;
 
-                    if (noteValue) {
-                        // Send the extracted value via AJAX
-                        const xhr = new XMLHttpRequest();
-                        xhr.open("POST", "process.php", true);
-                        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            if (noteValue) {
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", "process.php", true);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 
-                        xhr.onreadystatechange = function () {
-                            if (xhr.readyState === 4) {
-                                if (xhr.status === 200) {
-                                    try {
-                                        const response = JSON.parse(xhr.responseText);
-                                        console.log(response.message); // Log the server response
-                                    } catch (e) {
-                                        console.error("Invalid JSON response:", xhr.responseText);
-                                    }
-                                } else {
-                                    console.error("AJAX request failed with status:", xhr.status);
-                                }
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            try {
+                                const response = JSON.parse(xhr.responseText);
+                                console.log(response.message);
+                            } catch (e) {
+                                console.error("Invalid JSON response:", xhr.responseText);
                             }
-                        };
-
-                        // Send the note value to process.php
-                        xhr.send(`note=${encodeURIComponent(noteValue)}`);
+                        } else {
+                            console.error("AJAX request failed with status:", xhr.status);
+                        }
                     }
-
-                    // Remove the targeted row after processing
-                    removeTarget.remove();
-                }
+                };
+                xhr.send(`note=${encodeURIComponent(noteValue)}`);
+            }
+            removeTarget.remove();
+        }
         var myModalEl = document.getElementById('confirmDeleteModal');
         var modal = bootstrap.Modal.getInstance(myModalEl);
-        modal.hide(); // Hide the modal after removal
-        });
-        });
+        modal.hide();
+    });
 
     // Function to update the name attributes dynamically
-    function updateFieldNames(selectElement) {
-        // Get the selected value
+    window.updateFieldNames = function (selectElement) {
         const selectedValue = selectElement.value;
-
-        // Find the parent container
         const parentDiv = selectElement.closest('.col-md-12');
-
-        // Update the name attribute of the select field
-        if (selectedValue) {
-            selectElement.name = `field_mapping[${selectedValue}]`;
-        } else {
-            selectElement.name = 'field_mapping[new_field_1741863378426]';
-        }
-
-        // Find the input field and update its name attribute
         const inputField = parentDiv.querySelector('.custom-header-input');
+
         if (selectedValue) {
-            inputField.name = `custom_headers[${selectedValue}]`;
-        } else {
-            inputField.name = 'custom_headers[new_field_1741863378426]';
+            selectElement.name = `field_mapping[${selectedValue}#${fieldCounter++}]`;
+            inputField.name = `custom_headers[${selectedValue}#${fieldCounter++}]`;
         }
-    }
+    };
+});
+
+
+
+
 
 </script>
 
@@ -3189,43 +3161,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
+  
 
-
-
-
-
-            </div>
-            <div class="panel setup-content" id="step-3" style="display: none;">
-                <h4>Download Processed File</h4>
-                <button class="btn btn-success">Download</button>
-            </div>
-        </form>
-    </div>
-    <script>
-        $(document).ready(function () {
-            var navListItems = $('.stepwizard-step a'),
-                allWells = $('.setup-content'),
-                allNextBtn = $('.nextBtn');
-            allWells.hide();
-            navListItems.click(function (e) {
-                e.preventDefault();
-                var $target = $($(this).attr('href'));
-                if (!$(this).hasClass('disabled')) {
-                    navListItems.removeClass('btn-success').addClass('btn-secondary');
-                    $(this).addClass('btn-success');
-                    allWells.hide();
-                    $target.fadeIn();
-                }
-            });
-            allNextBtn.click(function () {
-                var curStep = $(this).closest(".setup-content"),
-                    curStepBtn = curStep.attr("id"),
-                    nextStepWizard = $('div.stepwizard-step a[href="#' + curStepBtn + '"]').parent().next().children("a");
-                nextStepWizard.removeClass('disabled').trigger('click');
-            });
-            $('div.stepwizard-step a.btn-success').trigger('click');
-        });
-    </script>
 </body>
 </html>
 
