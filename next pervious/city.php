@@ -13,93 +13,78 @@
             background-color: #f8f9fa;
         }
        
-/* General styling for the slider buttons container */
-.slider-buttons {
-  position: fixed; /* Fixed positioning to keep buttons on the page */
-  top: 50%; /* Vertically center the buttons */
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-between; /* Place buttons on opposite sides */
-  transform: translateY(-50%); /* Adjust vertical alignment */
-  z-index: 10; /* Ensure buttons are above other content */
-}
-
-/* Styling for individual slider buttons */
-.slider-button {
-  text-decoration: none; /* Remove underline from links */
-  color: #000; /* Icon color */
-  background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+    /* General styling for the slider buttons container */
+    .slider-button {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  /* Existing styles */
+  text-decoration: none;
+  color: #000;
+  background-color: rgba(255, 255, 255, 0.8);
   padding: 10px;
-  border-radius: 50%; /* Circular shape */
-  font-size: 20px; /* Icon size */
+  border-radius: 50%;
+  font-size: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow */
-  transition: transform 0.2s ease, background-color 0.2s ease; /* Smooth hover effect */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  z-index: 10;
 }
 
-/* Hover effect for buttons */
-.slider-button:hover {
-  background-color: rgba(0, 0, 0, 0.8); /* Darker background on hover */
-  color: #fff; /* White icon color on hover */
-  transform: scale(1.1); /* Slightly enlarge the button */
-}
-
-/* Positioning adjustments for left and right buttons */
 .left {
-  margin-left: 20px; /* Space from the left edge */
+  left: 20px; /* Position left button */
 }
 
 .right {
-  margin-right: 20px; /* Space from the right edge */
+  right: 20px; /* Position right button */
 }
- /* Style for the popup */
- .popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: white;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            border-radius: 8px;
-        }
+    /* Style for the popup */
+    .popup {
+                display: none;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: white;
+                padding: 20px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                z-index: 1000;
+                border-radius: 8px;
+            }
 
-        /* Overlay to dim the background */
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
+            /* Overlay to dim the background */
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+            }
 
-        /* Button styling */
-        .btn {
-            padding: 10px 20px;
-            margin: 5px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+            /* Button styling */
+            .btn {
+                padding: 10px 20px;
+                margin: 5px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
 
-        .btn-close {
-            background-color: #f44336;
-            color: white;
-        }
+            .btn-close {
+                background-color: #f44336;
+                color: white;
+            }
 
-        .btn-next {
-            background-color: #4caf50;
-            color: white;
-        }
-        
+            .btn-next {
+                background-color: #4caf50;
+                color: white;
+            }
+            
 
     </style>
 </head>
@@ -117,14 +102,19 @@
         <br>
                 <p class="display-6 text-center" >CSV Processing Tool</p>
                 <hr>
+           <?php     if (isset($_GET['status']) && $_GET['status'] === 'success' && isset($_GET['message'])) { ?>
+            <div class="alert alert-info mt-3">
+                <?php echo $_GET['message'];?>
+        </div>
 
-
+          <?php  } ?>
 
                                     
-                                    <h4 class="form-header">City Mapping</h4>
+                                    <h4 class="form-header  text-center">City Mapping</h4>
 
                                     <!-- Column Selection Form -->
                                     <form method="post" action="process.php" class="mb-4 text-center ">
+                                    <input type="hidden" name="page" value="city1">
                                     <div class="row mb-3">
                                     <div class="col">
                                         <label for="csvColumnSelect" class="form-label">Select Column to Map city</label>
@@ -162,7 +152,7 @@
                                     echo '<p class="text-center">No states available for mapping.</p>';
                                     
                                 }
-                                if($_SESSION['show_city_mapping']==1){ ?>
+                                if(isset($_SESSION['show_city_mapping']) && $_SESSION['show_city_mapping']==1){ ?>
                             
                 <!-- city Mapping Accordion Item -->
 
@@ -178,7 +168,8 @@
                             </h2>
                             <div id="cityMappingCollapse" class="accordion-collapse collapse show " aria-labelledby="cityMappingHeading" data-bs-parent="#mappingFormsAccordion">
                             <div class="accordion-body">
-                                <form method="post" class="mb-4 text-center">
+                                <form method="post" action="process.php" class="mb-4 text-center">
+                                <input type="hidden" name="page" value="city2">
                                     <div id="mappingFields" class="mb-4">
                                         <div class="accordion" id="stateDropdownAccordion">
                                             <?php
@@ -526,7 +517,7 @@
   </a>
 
   <!-- Right Button -->
-  <a href="city.php" class="slider-button right">
+  <a href="phone.php" class="slider-button right">
     <i class="fas fa-chevron-right"></i> <!-- Font Awesome Icon -->
   </a>
 </div>

@@ -347,7 +347,8 @@ function processPhoneNumber($phone , $phone_format)
 
 
 // Step 1: Upload CSV
-if (isset($_POST['upload_csv']) && !empty($_FILES['csv_file']) && empty($_POST['csv_column'])) {
+if (isset($_POST['upload_csv']) && !empty($_FILES['csv_file']) && empty($_POST['csv_column'])
+ && $_POST['page']=="upload" ) {
 
     $uploadDir = 'uploads/';
     $uploadedFilePath = $uploadDir . basename($_FILES['csv_file']['name']);
@@ -423,7 +424,8 @@ if (isset($_POST['upload_csv']) && !empty($_FILES['csv_file']) && empty($_POST['
 
 // Extract unique states and their counts from the uploaded file
 
-if (!empty($_POST['csv_column']) && isset($_POST['column_submit'])) {   
+if (!empty($_POST['csv_column']) && isset($_POST['column_submit']) 
+&& $_POST['page']=="state1") {   
    
     $stateIndex = array_search($_POST['csv_column'], $_SESSION['headers']);
     $uniqueStates = [];
@@ -521,9 +523,11 @@ if (!empty($_POST['csv_column']) && isset($_POST['column_submit'])) {
 
 // step 2 state mapping 
 
-if (isset($_POST['state_mapping']) && !empty($_POST['state_mapping'])) {
+if (isset($_POST['state_mapping']) && !empty($_POST['state_mapping'])
+&& $_POST['page']=="state2") {
   
     // Get the mappings from the form
+    $message = "State Mapping Comleted successfully!";
     $stateMapping = $_POST['state_mapping'];
     $stateMapping_clean = [];
     
@@ -569,7 +573,7 @@ if (isset($_POST['state_mapping']) && !empty($_POST['state_mapping'])) {
                 }
             }
         } else {
-            echo "State column not found in the CSV file.";
+            $message = "State column not found in the CSV file.";
         }
         fclose($handle);
     }
@@ -607,13 +611,13 @@ if (isset($_POST['state_mapping']) && !empty($_POST['state_mapping'])) {
                 fputcsv($handle, $row);
             }
             fclose($handle);
-            echo "Updated file saved as: $newFileName<br>";
+             $message = "Updated file saved as: $newFileName<br>";
 
             $_SESSION['uploaded_file']=$newFileName;
             update_file($newFileName);
             $_SESSION['step']=1.1;
         } else {
-            echo "Failed to open the working file for writing.<br>";
+             $message = "Failed to open the working file for writing.<br>";
         }
     }
 
@@ -627,10 +631,10 @@ if (isset($_POST['state_mapping']) && !empty($_POST['state_mapping'])) {
                 fputcsv($handle, $row);
             }
             fclose($handle);
-            echo "Bad data file saved as: $badDataFileName<br>";
+            $message = "Bad data file saved as: $badDataFileName<br>";
             $_SESSION['bad_data'] = $badDataFileName;
         } else {
-            echo "Failed to open the bad data file for writing.<br>";
+            $message = "Failed to open the bad data file for writing.<br>";
         }
     }
 
@@ -717,13 +721,18 @@ if (isset($_POST['state_mapping']) && !empty($_POST['state_mapping'])) {
         // print_r($_SESSION['States_formats']);  die; 
     }
 
+       
+        header("Location: state.php?status=success&message=". urlencode($message));
+        exit();
+
+
+
 
 
 }
 
-
 // Extract unique citys and their counts from the uploaded file
-if (isset($_POST['city_submit'])) {   
+if (isset($_POST['city_submit']) && $_POST['page']=="city1") {   
     $stateIndex = array_search($_POST['city_column'], $_SESSION['headers']);
     $groupedStates = []; // To store states grouped alphabetically
     $invalidStatesRows = []; // To store rows for invalid states
@@ -791,8 +800,8 @@ if (isset($_POST['city_submit'])) {
 
 //   city mapping saved by user
 
-
-if (isset($_POST['city_mapping']) && !empty($_POST['city_mapping'])) {
+if (isset($_POST['city_mapping']) && !empty($_POST['city_mapping']) && $_POST['page']=="city2") {
+    $message = "City Mapping completed successfully!";
     // Get the mappings from the form
     $stateMapping = $_POST['city_mapping'];
     $stateMapping_clean = [];
@@ -839,7 +848,7 @@ if (isset($_POST['city_mapping']) && !empty($_POST['city_mapping'])) {
                 }
             }
         } else {
-            echo "State column not found in the CSV file.";
+            $message = "State column not found in the CSV file.";
         }
         fclose($handle);
     }
@@ -876,12 +885,12 @@ if (isset($_POST['city_mapping']) && !empty($_POST['city_mapping'])) {
                 fputcsv($handle, $row);
             }
             fclose($handle);
-            echo "Updated file saved as: $newFileName<br>";
+             $message = "Updated file saved as: $newFileName<br>";
 
             $_SESSION['uploaded_file'] = $newFileName;
             update_file($newFileName);
         } else {
-            echo "Failed to open the working file for writing.<br>";
+             $message = "Failed to open the working file for writing.<br>";
         }
     }
 
@@ -901,9 +910,9 @@ if (isset($_POST['city_mapping']) && !empty($_POST['city_mapping'])) {
                     fputcsv($handle, $row);
                 }
                 fclose($handle);
-                echo "Bad data file created: $badDataFileName<br>";
+                $message = "Bad data file created: $badDataFileName<br>";
             } else {
-                echo "Failed to open the bad data file for writing.<br>";
+                $message = "Failed to open the bad data file for writing.<br>";
             }
         } else {
             // If a bad data file already exists, merge the new bad data into it
@@ -912,12 +921,18 @@ if (isset($_POST['city_mapping']) && !empty($_POST['city_mapping'])) {
                     fputcsv($handle, $row);
                 }
                 fclose($handle);
-                echo "New bad data merged into existing file: $badDataFileName<br>";
+                $message = "New bad data merged into existing file: $badDataFileName<br>";
             } else {
-                echo "Failed to open the existing bad data file for appending.<br>";
+                $message = "Failed to open the existing bad data file for appending.<br>";
             }
         }
     }
+
+    
+
+    // Redirect to city.php with the success message as a query parameter
+    header("Location: city.php?status=success&message=" . urlencode($message));
+    exit();
 }
 
 
@@ -927,6 +942,7 @@ if (isset($_POST['city_mapping']) && !empty($_POST['city_mapping'])) {
 //  fromat number 
 
 if (isset($_POST['phone_mapping_submit'])) {
+    $message = "Phone number formatting operation completed successfully!";
     // Get the mappings from the form
     $_SESSION['phone_f'] = $_POST['phone_format'];
     $_SESSION['phone_col'] = $_POST['phone_col'];
@@ -973,7 +989,7 @@ if (isset($_POST['phone_mapping_submit'])) {
 
         fclose($handle);
     } else {
-        echo "Error opening the CSV file.";
+        $message = "Error opening the CSV file.";
         exit;
     }
 
@@ -1009,14 +1025,18 @@ if (isset($_POST['phone_mapping_submit'])) {
         }
 
         fclose($handle);
-        echo "Updated file saved as: $newFileName";
+        $message = "Updated file saved as: $newFileName";
 
         $_SESSION['uploaded_file']=$newFileName;
         update_file($newFileName);
         $_SESSION['step']=3;
     } else {
-        echo "Failed to save the updated CSV file.";
+        $message = "Failed to save the updated CSV file.";
     }
+
+    // Redirect to city.php with the success message as a query parameter   
+    header("Location: phone.php?status=success&message=". urlencode($message));
+    exit();
 }
 
 
@@ -1026,6 +1046,7 @@ if (isset($_POST['phone_mapping_submit'])) {
 
 if (isset($_POST['address_mapping_submit'])) {
 
+    $message = "Address mapping operation completed successfully!";
 
     // Get the uploaded file path and field mapping
     $uploadedFilePath = $_SESSION['uploaded_file'];
@@ -1100,14 +1121,18 @@ if (isset($_POST['address_mapping_submit'])) {
         fclose($outputHandle);
         
   
-        echo "Updated file saved as: $newFileName";
+      $message = "Updated file saved as: $newFileName";
 
         $_SESSION['uploaded_file']=$newFileName;
         update_file($newFileName);
         $_SESSION['step']=4;
     } else {
-        echo "File not found.";
+      $message = "File not found.";
     }
+
+    // Redirect to city.php with the success message as a query parameter
+    header("Location: address.php?status=success&message=". urlencode($message));
+    exit();
 }
 
 
@@ -1141,11 +1166,16 @@ if (isset($_POST['size_adjust_submit'])) {
         // Store the exceeding rows in the session
         $_SESSION['exceeding_rows'] = $exceedingRows;
     } else {
-        echo "Please select a valid column and provide a valid maximum character limit.";
+       $message = "Please select a valid column and provide a valid maximum character limit.";
     }
+   
+    header("Location: size.php");
+    exit();
 }
 
 if (isset($_POST['update_csv_submit'])) {
+    $message = "Size adjustment operation completed successfully!";
+
     $updatedValues = $_POST['updated_values'];
     $ids = $_POST['ids'];
 
@@ -1192,105 +1222,20 @@ if (isset($_POST['update_csv_submit'])) {
             fputcsv($handle, $row);
         }
         fclose($handle);
-        echo "Updated file saved as: $newFileName";
+       $message = "Updated file saved as: $newFileName";
         $_SESSION['uploaded_file']=$newFileName;
         update_file($newFileName);
         $_SESSION['step']=5;
     } else {
-        echo "Failed to save the updated CSV file.";
+       $message = "Failed to save the updated CSV file.";
     }
+    // Redirect to city.php with the success message as a query parameter
+    header("Location: size.php?status=success&message=". urlencode($message));
+    exit();
 }
 
 
 
-
-
-if (isset($_POST['size_adjust_auto'])) {
-    if (!isset($_POST['size_column_2'], $_POST['size_data_2'], $_SESSION['csvData'], $_SESSION['headers'])) {
-        die("Missing required data.");
-    }
-
-    $selectedColumn = $_POST['size_column_2'];
-    $selectedOption = $_POST['size_data_2'];
-
-    // Validate inputs
-    if (empty($selectedColumn) || empty($selectedOption)) {
-        die("Please select both a column and an adjustment option.");
-    }
-
-    // Ensure the selected column exists
-    $columnIndex = array_search($selectedColumn, $_SESSION['headers']);
-    if ($columnIndex === false) {
-        die("Invalid column selection.");
-    }
-
-    // Function to extract the first word
-    function getFirstWord($text) {
-        $words = explode(' ', trim($text));
-        return $words[0] ?? $text; // Return first word or original text if no spaces
-    }
-
-    // Function to extract initials (first letter of each word in uppercase)
-    function getInitials($text) {
-        $words = explode(' ', trim($text));
-        $initials = array_map(function($word) {
-            return strtoupper($word[0] ?? '');
-        }, $words);
-        return implode('', $initials);
-    }
-
-    // Apply transformation based on selected option
-    foreach ($_SESSION['csvData'] as &$row) {
-        if (!isset($row[$columnIndex])) continue; // Skip if column index is not set
-
-        if ($selectedOption === 'First word only') {
-            $row[$columnIndex] = getFirstWord($row[$columnIndex]);
-        } elseif ($selectedOption === 'Initials only') {
-            $row[$columnIndex] = getInitials($row[$columnIndex]);
-        }
-    }
-
-    // Save the updated CSV file
-    $workingDir = 'working/';
-    if (!is_dir($workingDir)) {
-        mkdir($workingDir, 0777, true);
-    }
-
-    $files = glob($workingDir . 'working_size-*.csv');
-    $version = 1;
-    if (!empty($files)) {
-        $highestVersion = 0;
-        foreach ($files as $file) {
-            if (preg_match('/working_size-(\d+)\.csv$/', $file, $matches)) {
-                $highestVersion = max($highestVersion, (int)$matches[1]);
-            }
-        }
-        $version = $highestVersion + 1;
-    }
-
-    $newFileName = $workingDir . "working_size-$version.csv";
-
-    if (($handle = fopen($newFileName, 'w')) !== false) {
-        fputcsv($handle, $_SESSION['headers']); // Write headers first
-
-        // Ensure headers are not duplicated in data
-        $data = $_SESSION['csvData'];
-        if ($data[0] === $_SESSION['headers']) {
-            array_shift($data); // Remove headers from data if already present
-        }
-
-        foreach ($data as $row) {
-            fputcsv($handle, $row);
-        }
-        fclose($handle);
-        echo "Updated file saved as: $newFileName";
-        $_SESSION['uploaded_file']=$newFileName;
-        update_file($newFileName);
-        
-    } else {
-        echo "Failed to save the updated CSV file.";
-    }
-}
 
 
 
@@ -1327,66 +1272,6 @@ if (!isset($_SESSION['field_mapping'])) {
     $_SESSION['custom_headers'] = $customHeaders;
 }
 
-
-/// nnn 
-
-
-// if (isset($_POST['process_csv']) && !empty($_POST['custom_headers']) && !empty($_SESSION['uploaded_file'])) {
-//     $uploadedFilePath = $_SESSION['uploaded_file'];
-//     $fieldMapping = $_POST['field_mapping'];
-//     $customHeaders = $_POST['custom_headers'] ?? [];
-//     $_SESSION['field_mapping'] = $fieldMapping;
-//     $_SESSION['custom_headers'] = $customHeaders;
-
-//     $processedArray = [];
-//     foreach ($customHeaders as $originalKey => $originalValue) {
-//         $processedValue = preg_replace('/#\d+/', '', $originalKey);
-//         $processedArray[$originalValue] = $processedValue;
-//     }
-
-//     $outputCsvPath = 'uploads/mapped_data.csv';
-
-//     if (($inputHandle = fopen($uploadedFilePath, 'r')) !== false) {
-//         $outputHandle = fopen($outputCsvPath, 'w');
-
-//         // Read original headers
-//         $originalHeaders = fgetcsv($inputHandle);
-//         if ($originalHeaders === false) {
-//             fclose($inputHandle);
-//             die("Error reading CSV headers.");
-//         }
-
-//         // Create a map from original header names to their indices
-//         $originalHeaderIndices = array_flip($originalHeaders);
-
-//         // Write new headers to output CSV
-//         fputcsv($outputHandle, array_keys($processedArray));
-
-//         // Process each row
-//         while (($row = fgetcsv($inputHandle)) !== false) {
-//             $newRow = [];
-//             foreach ($processedArray as $newHeader => $originalHeader) {
-//                 if (isset($originalHeaderIndices[$originalHeader])) {
-//                     $index = $originalHeaderIndices[$originalHeader];
-//                     $newRow[] = $row[$index];
-//                 } else {
-//                     $newRow[] = ''; // Handle missing headers by leaving them empty
-//                 }
-//             }
-//             fputcsv($outputHandle, $newRow);
-//         }
-
-//         fclose($inputHandle);
-//         fclose($outputHandle);
-
-//         $_SESSION['output_csv'] = $outputCsvPath;
-//         // Assuming update_file is a function to handle file updates
-//         update_file($outputCsvPath);
-//         $_SESSION['step'] = 6;
-//     } else {
-//         echo "Error: Failed to process file.";
-//     }
-// }
 
 
 if (isset($_POST['process_csv']) && !empty($_POST['custom_headers']) && !empty($_SESSION['uploaded_file'])) {
@@ -1451,6 +1336,12 @@ if (isset($_POST['process_csv']) && !empty($_POST['custom_headers']) && !empty($
     } else {
         die("Error: Failed to open output file.");
     }
+
+    // Redirect to city.php with success message
+    $message = "Fields Mapping completed successfully!";
+    header("Location: field_map.php?status=success&message=". urlencode($message));
+    exit();
+
 }
 
 
@@ -1462,7 +1353,7 @@ if (isset($_POST['process_csv']) && !empty($_POST['custom_headers']) && !empty($
 // Step 3: Reset
 if (isset($_POST['reset'])) {
     session_destroy();
-    header("Location: " . $_SERVER['PHP_SELF']);
+    header("Location:index.php" );
     exit;
 }
 
@@ -1617,6 +1508,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_changes'])) {
     unset($_SESSION['bad_data']);
 
     echo "Data successfully added to the output CSV file. Bad data file has been cleared.";
+
+    // Redirect to city.php with success message
+    $message = "Data successfully added to the output CSV file. Bad data file has been cleared.";
+    header("Location: preview.php?status=success&message=". urlencode($message));
+    exit();
 }
 
 
@@ -1853,900 +1749,6 @@ if (window.history.replaceState) {
          aria-labelledby="headingTwo" data-bs-parent="#csvProcessorAccordion">
             <div class="accordion-body">
 
-        <!-- Parent Accordion for Mapping Forms -->
-        <div class="accordion" id="mappingFormsAccordion">
-            
-
-
-
-
-                    <!-- city Mapping Accordion Item -->
-                    <div class="accordion-item">
-                            <h2 class="accordion-header" id="cityMappingHeading">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#cityMappingCollapse" aria-expanded="false" aria-controls="cityMappingCollapse">
-                                City Mapping
-                                </button>
-                            </h2>
-                            <div id="cityMappingCollapse" class="accordion-collapse collapse <?php echo ($_SESSION['step']==1.1) ? ' ' : ''; ?> " aria-labelledby="cityMappingHeading" data-bs-parent="#mappingFormsAccordion">
-                                <div class="accordion-body">
-                                    
-                                    <h4 class="form-header">City Mapping</h4>
-
-                                    <!-- Column Selection Form -->
-                                    <form method="post" action="process.php" class="mb-4 text-center ">
-                                    <div class="row mb-3">
-                                    <div class="col">
-                                        <label for="csvColumnSelect" class="form-label">Select Column to Map city</label>
-                                        <select id="csvColumnSelect" name="city_column" class="form-select">
-                                            <option value="">Select Column</option>
-                                            <?php 
-                                            foreach ($_SESSION['headers'] as $header): 
-                                                if (stripos($header, 'city') !== false): // Case-insensitive search for "state"
-                                            ?>
-                                            
-                                                <option value="<?php echo htmlspecialchars($header); ?>" 
-                                                    <?php echo (isset($_SESSION['city_column']) && $_SESSION['city_column'] === $header) ? 'selected' : ''; ?>>
-                                                    <?php echo htmlspecialchars($header); ?>
-                                                </option>
-                                            <?php 
-                                                endif; 
-                                            endforeach; 
-                                            ?>
-                                        </select>
-                                    </div>
-                                    
-                                    <div class="col">
-         
-                                    </div>
-                                </div>
-                                        
-                                        <button type="submit" name="city_submit" class="btn btn-primary">Show</button>
-                                    </form>
-
-
-
-
-                                <?php
-                                if (!isset($_SESSION['groupedStates']) || empty($_SESSION['groupedStates'])) {
-                                    echo '<p class="text-center">No states available for mapping.</p>';
-                                    
-                                }
-                                if($_SESSION['show_city_mapping']==1){ ?>
-
-                                <form method="post" class="mb-4 text-center">
-                                    <div id="mappingFields" class="mb-4">
-                                        <div class="accordion" id="stateDropdownAccordion">
-                                            <?php
-                                            $isFirstGroup = true;
-                                            foreach ($_SESSION['groupedStates'] as $group => $states):
-                                                $groupId = ($group === 'symbols') ? 'symbols' : "group-$group";
-                                            ?>
-                                                <div class="accordion-item">
-                                                    <h2 class="accordion-header" id="heading<?php echo $groupId; ?>">
-                                                        <button class="accordion-button <?php echo $isFirstGroup ? '' : 'collapsed'; ?>" 
-                                                                type="button" 
-                                                                data-bs-toggle="collapse" 
-                                                                data-bs-target="#collapse<?php echo $groupId; ?>" 
-                                                                aria-expanded="<?php echo $isFirstGroup ? 'true' : 'false'; ?>" 
-                                                                aria-controls="collapse<?php echo $groupId; ?>">
-                                                            <?php echo ($group === 'symbols') ? 'Not Valid Cities' : "Group $group"; ?>
-                                                        </button>
-                                                    </h2>
-                                                    <div id="collapse<?php echo $groupId; ?>" 
-                                                        class="accordion-collapse collapse <?php echo $isFirstGroup ? ' ' : ''; ?>" 
-                                                        aria-labelledby="heading<?php echo $groupId; ?>" 
-                                                        data-bs-parent="#stateDropdownAccordion">
-                                                        <div class="accordion-body">
-                                                            <?php foreach ($states as $state): ?>
-                                                                <div class="row mb-3 state-mapping-row" data-state="<?php echo htmlspecialchars($state); ?>">
-                                                                    <div class="col-md-12 d-flex flex-column align-items-start">
-                                                                        <!-- Dropdown and Eye Icon -->
-                                                                        <div class="d-flex align-items-center w-100 mb-2">
-                                                                            <label for="state-<?php echo htmlspecialchars($state); ?>" class="me-2 visually-hidden">State</label>
-                                                                            <input type="text" class="form-control me-2" readonly 
-                                                                                id="state-<?php echo htmlspecialchars($state); ?>" 
-                                                                                value="<?php echo htmlspecialchars($state); ?>">
-                                                                            <?php if ($group === 'symbols'): ?>
-                                                                                <!-- Dropdown for Symbols & Numbers group -->
-                                                                                <select class="form-select state-select" name="city_mapping[<?php echo htmlspecialchars($state); ?>]" 
-                                                                                        aria-label="Select Correct City">
-                                                                                    <option value="">Select Correct City</option>
-                                                                                    <option selected value="mark_bad_data">Mark Bad Data</option>
-                                                                                    <option value="enter_manually">Enter Manually</option>
-                                                                                    
-                                                                                </select>
-                                                                                <!-- <div class="dropdown d-inline-block">
-                                                                                    <i class="bi bi-three-dots-vertical cursor-pointer action-icon" 
-                                                                                    style="font-size: 1.2rem;" 
-                                                                                    data-bs-toggle="dropdown" 
-                                                                                    aria-expanded="false"></i>
-                                                                                    <ul class="dropdown-menu">
-                                                                                        <li>
-                                                                                            <select class="form-select column-select">
-                                                                                                <option value="">Select Column</option>
-                                                                                                <option value="Abbreviation">Abbreviation</option>
-                                                                                                <option value="Complete Name">Complete Name</option>
-                                                                                                <option value="Abbreviation + Name">Abbreviation + Name</option>
-                                                                                                <option value="Name + Abbreviation">Name + Abbreviation</option>
-                                                                                            </select>
-                                                                                        </li>
-                                                                                    </ul>
-                                                                                </div> -->
-                                                                
-                                                                            <?php else: ?>
-                                                                                <!-- Dropdown for other groups -->
-
-                                                                                <select class="form-select state-select"  name="city_mapping[<?php echo htmlspecialchars($state); ?>]" aria-label="Select Correct State">
-                                                                                    <option value="">Select Correct City</option>
-                                                                                    <option  value="mark_bad_data">Mark Bad Data</option>
-                                                                                    <option value="enter_manually">Enter Manually</option>
-                                                                                    <?php  foreach ($states as $status): 
-                                                                                          $status = preg_replace('/\s*\(\d+\)/', '', $status);
-                                                                                          $state = preg_replace('/\s*\(\d+\)/', '', $state);
-
-                                                                                                ?>
-                                                                                            <option value="<?php echo htmlspecialchars($status); ?>"
-                                                                                            <?php echo ( strtolower($status) == strtolower($state)  ) ? 'selected' : ''; ?>>
-                                                                                            <?php echo htmlspecialchars($status); ?>  
-                                                                                        </option>
-                                                                                    <?php endforeach; ?>
-                                                                                </select>
-                                                                                
-                                                                                <!-- <div class="dropdown d-inline-block">
-                                                                                    <i class="bi bi-three-dots-vertical cursor-pointer action-icon" 
-                                                                                    style="font-size: 1.2rem;" 
-                                                                                    data-bs-toggle="dropdown" 
-                                                                                    aria-expanded="false"></i>
-
-                                                                                    <ul class="dropdown-menu">
-                                                                                        <li>
-                                                                                            <select class="form-select column-select">
-                                                                                                <option value="">Select Column</option>
-                                                                                                <option value="Abbreviation">Abbreviation</option>
-                                                                                                <option value="Complete Name">Complete Name</option>
-                                                                                                <option value="Abbreviation + Name">Abbreviation + Name</option>
-                                                                                                <option value="Name + Abbreviation">Name + Abbreviation</option>
-                                                                                            </select>
-                                                                                        </li>
-                                                                                    </ul>
-                                                                                    
-                                                                                </div> -->
-                                                                            <?php endif; ?>
-                                                                        </div>
-
-                                                                        <script>
-                                                                            var statesFormats = <?php echo json_encode($_SESSION['States_formats'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
-                                                                            sessionStorage.setItem("States_formats", JSON.stringify(statesFormats));
-
-                                                                            document.addEventListener("DOMContentLoaded", function () {
-                                                                                document.querySelectorAll(".column-select").forEach(select => {
-                                                                                    select.addEventListener("change", function () {
-                                                                                        let selectedFormat = this.value;
-                                                                                        if (!selectedFormat) return;
-
-                                                                                        let dropdownContainer = this.closest(".dropdown");
-                                                                                        let selectField = dropdownContainer ? dropdownContainer.previousElementSibling : null;
-                                                                                        let accordionItem = this.closest(".accordion-item");
-                                                                                        let isNotValidUSAState = accordionItem && accordionItem.querySelector(".accordion-button")?.textContent.includes("Not Valid USA States");
-
-                                                                                        if (!selectField || !selectField.classList.contains("form-select")) return;
-
-                                                                                        let statesFormats = JSON.parse(sessionStorage.getItem("States_formats"));
-
-                                                                                        if (statesFormats && statesFormats[selectedFormat]) {
-                                                                                            let selectedValue = selectField.value;
-                                                                                            selectField.innerHTML = '<option value="">Select Correct State</option>';
-
-                                                                                            if (isNotValidUSAState) {
-                                                                                                selectField.innerHTML += `
-                                                                                                    <option value="mark_bad_data">Mark Bad Data</option>
-                                                                                                    <option value="enter_manually">Enter Manually</option>
-                                                                                                `;
-                                                                                            }
-
-                                                                                            Object.entries(statesFormats[selectedFormat]).forEach(([abbr, value]) => {
-                                                                                                let option = document.createElement("option");
-                                                                                                option.value = value;
-                                                                                                option.textContent = value;
-                                                                                                if (value === selectedValue) option.selected = true;
-                                                                                                selectField.appendChild(option);
-                                                                                            });
-                                                                                        }
-                                                                                    });
-                                                                                });
-
-                                                                                function handleManualEntry(select) {
-                                                                                    console.log('seleeding');
-                                                                                    if (select.value === "enter_manually") {
-                                                                                        let parentDiv = select.closest(".d-flex");
-
-                                                                                        // Save the original state of the select element
-                                                                                        let originalOptions = select.innerHTML; // Save all options
-                                                                                        let originalValue = select.value;       // Save the selected value
-
-                                                                                        // Create the manual input field
-                                                                                        let inputField = document.createElement("input");
-                                                                                        inputField.type = "text";
-                                                                                        inputField.className = "form-control manual-entry";
-                                                                                        inputField.name = select.name;
-                                                                                        inputField.placeholder = "Please enter a valid state";
-
-                                                                                        // Create the reverse icon
-                                                                                        let reverseIcon = document.createElement("i");
-                                                                                        reverseIcon.className = "bi bi-arrow-counterclockwise cursor-pointer reverse-icon";
-                                                                                        reverseIcon.style.fontSize = "1.2rem";
-                                                                                        reverseIcon.style.marginLeft = "10px";
-
-                                                                                        // Append the reverse icon to the parent div
-                                                                                        parentDiv.appendChild(reverseIcon);
-
-                                                                                        // Replace the select element with the input field
-                                                                                        select.replaceWith(inputField);
-
-                                                                                        // Add event listener to the reverse icon
-                                                                                        reverseIcon.addEventListener("click", function () {
-                                                                                            // Create a new select field
-                                                                                            let selectField = document.createElement("select");
-                                                                                            selectField.className = "form-select state-select";
-                                                                                            selectField.name = inputField.name;
-
-                                                                                            // Restore the original options and selected value
-                                                                                            selectField.innerHTML = originalOptions; // Restore options
-                                                                                            selectField.value = originalValue;       // Restore selected value
-
-                                                                                            // Replace the input field with the select field
-                                                                                            inputField.replaceWith(selectField);
-
-                                                                                            // Remove the reverse icon
-                                                                                            reverseIcon.remove();
-
-                                                                                            // Reattach the event listener to the newly created select field
-                                                                                            selectField.addEventListener("change", function () {
-                                                                                                handleManualEntry(selectField);
-                                                                                            });
-                                                                                        });
-                                                                                    }
-                                                                                }
-
-                                                                                // Handle manual entry selection
-                                                                                document.querySelectorAll(".state-select").forEach(select => {
-                                                                                    select.addEventListener("change", function () {
-                                                                                        handleManualEntry(this);
-                                                                                    });
-                                                                                });
-                                                                            });
-
-                                                                        </script>
-
-
-
-                                                                        <!-- Scrollable Container for Table -->
-                                                                        <div class="w-100 invalid-state-table-container" id="table-container-<?php echo htmlspecialchars($state); ?>" style="display: none; max-width: 100%; overflow-x: auto;">
-                                                                            <table class="table table-bordered" style="width: auto; min-width: 100%;">
-                                                                                <thead>
-                                                                                    <tr>
-                                                                                        <?php
-                                                                                        // Extract headers from the CSV file
-                                                                                        $headers = $_SESSION['csvData'][0];
-                                                                                        foreach ($headers as $header):
-                                                                                        ?>
-                                                                                            <th><?php echo htmlspecialchars($header); ?></th>
-                                                                                        <?php endforeach; ?>
-                                                                                    </tr>
-                                                                                </thead>
-                                                                                <tbody>
-                                                                                    <?php
-                                                                                    // Decode the invalid states JSON and find rows for this state
-                                                                                    $invalidStatesJson = json_decode($_SESSION['invalidStatesJson'], true);
-                                                                                    $stateName = trim(explode(" (", $state)[0]); // Extract state name from "State (Count)"
-                                                                                    if (isset($invalidStatesJson[$stateName])) {
-                                                                                        foreach ($invalidStatesJson[$stateName] as $index => $row):
-                                                                                            if ($index === 0) continue; // Skip header row
-                                                                                    ?>
-                                                                                            <tr>
-                                                                                                <?php foreach ($row as $cell): ?>
-                                                                                                    <td><?php echo htmlspecialchars($cell); ?></td>
-                                                                                                <?php endforeach; ?>
-                                                                                            </tr>
-                                                                                    <?php
-                                                                                        endforeach;
-                                                                                    }
-                                                                                    ?>
-                                                                                </tbody>
-                                                                            </table>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            <?php endforeach; ?>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            <?php
-                                                $isFirstGroup = false;
-                                            endforeach;
-                                            ?>
-                                        </div>
-                                    </div>
-                                    <button type="submit" name="city_mapping_submit" class="btn btn-primary">Save Mapping</button>
-                                </form>
-
-                                        <!-- Include Bootstrap Icons CSS -->
-                                        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-
-                                        <!-- JavaScript for Toggle Functionality -->
-                                        <script>
-                                                document.addEventListener('DOMContentLoaded', function () {
-                                                    // Add click event listeners to all eye icons
-                                                    document.querySelectorAll('.toggle-table').forEach(icon => {
-                                                        icon.addEventListener('click', function () {
-                                                            const state = this.getAttribute('data-state');
-                                                            const tableContainerId = `table-container-${state}`;
-                                                            const tableContainer = document.getElementById(tableContainerId);
-
-                                                            // Toggle table visibility
-                                                            if (tableContainer.style.display === 'none' || tableContainer.style.display === '') {
-                                                                tableContainer.style.display = 'block';
-                                                                this.classList.remove('bi-eye');
-                                                                this.classList.add('bi-eye-slash'); // Change icon to "eye-slash"
-                                                            } else {
-                                                                tableContainer.style.display = 'none';
-                                                                this.classList.remove('bi-eye-slash');
-                                                                this.classList.add('bi-eye'); // Change icon back to "eye"
-                                                            }
-                                                        });
-                                                    });
-                                                });
-
-                                                document.addEventListener('DOMContentLoaded', function () {
-                                                    // Listen for form submission
-                                                    const saveMappingButton = document.querySelector('button[name="state_mapping_submit"]');
-                                                    if (saveMappingButton) {
-                                                        saveMappingButton.addEventListener('click', function (event) {
-                                                            // Prevent form submission
-                                                            event.preventDefault();
-
-                                                            // Validate fields in the "Symbols & Numbers" tab
-                                                            if ( document.getElementById('collapsesymbols')) {
-                                                                const symbolsTab = document.getElementById('collapsesymbols');
-                                                                const symbolFields = symbolsTab.querySelectorAll('.state-mapping-row');
-                                                                let isValid = true;
-
-                                                                symbolFields.forEach(row => {
-                                                                    const dropdown = row.querySelector('.state-select');
-                                                                    const inputField = row.querySelector('input[type="text"]');
-
-                                                                    // Check if the dropdown or input field is empty
-                                                                    if ((dropdown && !dropdown.value) || (inputField && !inputField.value)) {
-                                                                        isValid = false;
-                                                                    }
-                                                                });
-
-                                                                if (!isValid) {
-                                                                    // Show alert if any field is empty
-                                                                    alert('Please fill the "Not a USA State" field to process.');
-                                                                } else {
-                                                                    // If all fields are valid, submit the form programmatically
-                                                                    saveMappingButton.form.submit();
-                                                                }
-                                                            }
-                                                            else{
-                                                                saveMappingButton.form.submit();
-                                                            }
-                                                        });
-                                                    }
-                                                });
-
-                                        </script>
-
-                                        <?php } ?>
-                                    
-
-
-                </div>
-            </div>
-        </div>
-
-
-
-                        <!-- Phone Number  Accordion Item -->
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="phoneHeading">
-                            <button class="accordion-button collapsed " type="button" data-bs-toggle="collapse" data-bs-target="#phoneCollapse" aria-expanded="false" aria-controls="phoneCollapse">
-                                Phone Number Modification
-                            </button>
-                        </h2>
-
-                        <div id="phoneCollapse" class="accordion-collapse collapse <?php echo ($_SESSION['step']==2) ? '' : ''; ?> " aria-labelledby="phoneHeading" data-bs-parent="#mappingFormsAccordion">
-                            <div class="accordion-body">
-                                
-                                <h4 class="form-header">Phone Number Format Setting</h4>
-                                                                <!-- Column Selection Form -->
-                                        <form method="post" action="process.php" class="mb-4 text-center">
-                                        <div class="mb-3">
-                                        <label class="form-label">Select Phone number Column and Phone number format</label>
-                                        <div class="row">
-                                        
-                                            <div class="col-md-6">
-                                                <select id="csvPhoneColumnSelect" name="phone_col" class="form-select">
-                                                    <option value="">Select Phone Column</option>
-                                                    <?php 
-                                                    foreach ($_SESSION['headers'] as $header): 
-                                                        if (stripos($header, 'phone') !== false): // Case-insensitive search for "phone"
-                                                    ?>
-                                                        <option value="<?php echo htmlspecialchars($header); ?>" 
-                                                            <?php echo (isset($_SESSION['phone_col']) && $_SESSION['phone_col'] === $header) ? 'selected' : ''; ?>>
-                                                            <?php echo htmlspecialchars($header); ?>
-                                                        </option>
-                                                    <?php 
-                                                        endif; 
-                                                    endforeach; 
-                                                    ?>
-                                                </select>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <select id="csvStateColumnSelect" name="phone_format" class="form-select">
-                                                    <option value="">Select Number Format</option>
-                                                    <?php 
-                                                    foreach ($_SESSION['phone_format'] as $index =>$header): 
-                                                        // Case-insensitive search for "state"
-                                                    ?>
-                                                        <option value="<?php echo htmlspecialchars($index); ?>" 
-                                                            <?php echo (isset($_SESSION['phone_f']) && $_SESSION['phone_f'] == $index) ? 'selected' : ''; ?>>
-                                                            <?php echo htmlspecialchars($header); ?>
-                                                        </option>
-                                                    <?php 
-                                                      
-                                                    endforeach; 
-                                                    ?>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                   
-                                    <button type="submit" name="phone_mapping_submit" class="btn btn-primary">Save Format</button>
-                                </form>
-
-                            </div>
-                        </div>
-
-
-                    </div>
-
-                                            <!-- Address  Accordion Item -->
-            <div class="accordion-item">
-                        <h2 class="accordion-header" id="addressHeading">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#addressCollapse" aria-expanded="false" aria-controls="addressCollapse">
-                                Address Mapping
-                            </button>
-                        </h2>
-
-                        <div id="addressCollapse" class="accordion-collapse collapse <?php echo ($_SESSION['step']==3) ? ' ' : ''; ?> " aria-labelledby="addressHeading" data-bs-parent="#mappingFormsAccordion">
-                            <div class="accordion-body">
-                                
-                                <h4 class="form-header"> Address Mapping </h4>
-                                                                <!-- Column Selection Form -->
-                                        <form method="post" action="process.php" class="mb-4 text-center">
-                                        <div class="mb-3">
-                                        <label class="form-label">Select Address Column and Phone number format</label>
-                                      
-                                        <?php 
-                                        // Create read-only fields based on the session variable count
-                                        if (isset($_SESSION['address_format']) && is_array($_SESSION['address_format'])): 
-                                            $phoneFormatCount = count($_SESSION['address_format']);
-                                            for ($i = 0; $i < $phoneFormatCount; $i++):
-                                        ?>
-                                        <div class="row mb-3">
-                                      
-                                            <div class="col-md-6">
-                                                <input type="text" value="<?php echo htmlspecialchars($_SESSION['address_format'][$i]); ?>" class="form-control" readonly>
-                                            </div>
-
-
-                                        <div class="col-md-6">
-                                            <select id="csvAddressColumnSelect"   name="field_mapping[<?php echo htmlspecialchars($_SESSION['address_format'][$i]); ?>]" class="form-select">
-                                                <option value="">Select Address Column</option>
-                                                <?php 
-                                                foreach ($_SESSION['headers'] as $header): 
-                                                    if (stripos($header, 'address') !== false): // Case-insensitive search for "address"
-                                                ?>
-                                                    <option value="<?php echo htmlspecialchars($header); ?>" 
-                                                        <?php echo (isset($_SESSION['phone_col']) && $_SESSION['phone_col'] === $header) ? 'selected' : ''; ?>>
-                                                        <?php echo htmlspecialchars($header); ?>
-                                                    </option>
-                                                <?php 
-                                                    endif; 
-                                                endforeach; 
-                                                ?>
-                                            </select>
-                                        </div>
-
-                                    </div>
-                                    
-                                    <?php 
-                                            endfor;
-                                        endif;
-                                        ?>
-
-                                </div>
-
-                                   
-                                    <button type="submit" name="address_mapping_submit" class="btn btn-primary">Save</button>
-                                </form>
-
-                            </div>
-                        </div>
-
-
-            </div>
-
-
-
-            
-                                                         
-            <!-- Size  Accordion Item -->
-            
-            <div class="accordion-item">
-                        <h2 class="accordion-header" id="size_data_adjust">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#size_data_adjustCollapse" aria-expanded="false" aria-controls="size_data_adjustCollapse">
-                            Data size adjustments
-                            </button>
-                        </h2>
-                        <div id="size_data_adjustCollapse" class="accordion-collapse collapse <?php echo ($_SESSION['step']==4) ? ' ' : ''; ?> " aria-labelledby="size_data_adjust" data-bs-parent="#mappingFormsAccordion">
-                            
-                            <div class="accordion-body">
-
-               
-               
-                            <div class="accordion" id="data_DropdownAccordion">
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="sizeHeading">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#sizeCollapse" aria-expanded="true" aria-controls="sizeCollapse">
-                                        Data size adjustments Manually
-                                    </button> 
-                                </h2>
-
-                                <div id="sizeCollapse" class="accordion-collapse collapse  <?php echo ($_SESSION['step']==4) ? ' ' : ''; ?>" aria-labelledby="sizeHeading" data-bs-parent="#data_DropdownAccordion">
-                                    <div class="accordion-body">
-                                        
-                                        <h4 class="form-header"> Data size adjustments </h4>
-                                            
-                                        <!-- Column Selection Form -->
-
-                                        <form method="post" action="process.php" class="mb-4 text-center ">
-                                        <div class="row mb-3">
-                                        <div class="col">
-                                            <label for="csvColumnSelect" class="form-label">Select Column to data size adjustments</label>
-                                            <select id="csvColumnSelect" name="size_column" class="form-select">
-                                                <option value="">Select Column</option>
-                                                <?php 
-                                                foreach ($_SESSION['headers'] as $header): 
-                                                
-                                                ?>
-                                                    <option value="<?php echo htmlspecialchars($header); ?>" 
-                                                        <?php echo (isset($_SESSION['size_column']) && $_SESSION['size_column'] === $header) ? 'selected' : ''; ?>>
-                                                        <?php echo htmlspecialchars($header); ?>
-                                                    </option>
-                                                <?php 
-                                                
-                                                endforeach; 
-                                                ?>
-                                            </select>
-                                        </div>
-                                        
-                                        <div class="col">
-                                            <label for="csvSecondColumnSelect" class="form-label">Add Maximum Allowed Characters</label>
-                                            <input 
-                                                    type="text" 
-                                                    id="csvSecondColumnInput" 
-                                                    name="added_size" 
-                                                    class="form-control" 
-                                                    value="<?php echo isset($_SESSION['added_size']) ? htmlspecialchars($_SESSION['added_size']) : ''; ?>" 
-                                                    placeholder="for example 50" 
-                                                
-                                                ></input>
-                                        </div>
-                                    </div>            
-                                    <button type="submit" name="size_adjust_submit" class="btn btn-primary">Show</button>
-                                </form>
-                                        
-                                        <!-- HTML Form for Displaying Exceeding Rows -->
-                                        <?php if (isset($_SESSION['exceeding_rows']) && !empty($_SESSION['exceeding_rows'])): ?>
-                                        <form method="post" action="process.php" class="mt-4">
-                                            <div class="table-responsive">
-                                                <table class="table table-bordered">
-                                                    <thead>
-                                                        <tr>
-                                                            <th style="width: 50px;">Action</th>
-                                                            <th>Selected Column Content</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <?php 
-                                                        $columnIndex = array_search($_SESSION['size_column'], $_SESSION['headers']);
-                                                        foreach ($_SESSION['exceeding_rows'] as $index => $row): 
-                                                        ?>
-                                                        <tr>
-                                                            <td style="width: 50px;">
-                                                                <!-- Eye Icon to Show Full Record -->
-                                                                <button type="button" class="btn btn-sm btn-info view-record" data-bs-toggle="modal" data-bs-target="#recordModal" data-index="<?php echo $index; ?>">
-                                                                    <i class="fas fa-eye"></i>
-                                                                </button>
-                                                            </td>
-                                                            <td>
-                                                                <!-- Hidden Input for ID -->
-                                                                <input type="hidden" name="ids[]" value="<?php echo htmlspecialchars($row[0]); ?>">
-                                                                <!-- Textarea to Edit Selected Column Content -->
-                                                                <textarea name="updated_values[]" class="form-control" rows="3"><?php echo htmlspecialchars($row[$columnIndex]); ?></textarea>
-                                                            </td>
-                                                        </tr>
-                                                        <?php endforeach; ?>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                            <button type="submit" name="update_csv_submit" class="btn btn-success">Save Changes</button>
-                                        </form>
-                                        <?php endif; ?>
-
-                                    <!-- Modal to Display Full Record -->
-                                    <div class="modal fade" id="recordModal" tabindex="-1" aria-labelledby="recordModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog modal-lg">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="recordModalLabel">Full Record Details</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
-                                                    <table class="table table-bordered">
-                                                        <thead>
-                                                            <tr>
-                                                                <?php foreach ($_SESSION['headers'] as $header): ?>
-                                                                <th><?php echo htmlspecialchars($header); ?></th>
-                                                                <?php endforeach; ?>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody id="recordDetails">
-                                                            <!-- Dynamic content will be loaded here -->
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <script>
-                                    document.addEventListener('DOMContentLoaded', function () {
-                                        // Add event listener to all view-record buttons
-                                        document.querySelectorAll('.view-record').forEach(button => {
-                                            button.addEventListener('click', function () {
-                                                const index = this.getAttribute('data-index');
-                                                const row = <?php echo json_encode($_SESSION['exceeding_rows']); ?>[index];
-                                                const headers = <?php echo json_encode($_SESSION['headers']); ?>;
-
-                                                let tableContent = '<tr>';
-                                                headers.forEach((header, i) => {
-                                                    tableContent += `<td>${row[i]}</td>`;
-                                                });
-                                                tableContent += '</tr>';
-
-                                                // Populate the modal body with the row details
-                                                document.getElementById('recordDetails').innerHTML = tableContent;
-                                            });
-                                        });
-                                    });
-                                    </script>
-
-
-                                        
-
-
-                                    </div>
-                                </div>
-
-                                
-
-                            </div>
-
-                            </div>
-                        </div>
-                    </div>     
-            </div>
-
-
-
-
-            <!-- /// nnn  -->
-            <div class="accordion-item">
-    <h2 class="accordion-header" id="fieldMappingHeading">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-            data-bs-target="#fieldMappingCollapse" aria-expanded="false" aria-controls="fieldMappingCollapse">
-            Field Mapping
-        </button>
-    </h2>
-    <div id="fieldMappingCollapse"
-        class="accordion-collapse collapse <?php echo ($_SESSION['step']==5) ? '' : ''; ?>"
-        aria-labelledby="fieldMappingHeading" data-bs-parent="#mappingFormsAccordion">
-        <div class="accordion-body">
-            <h2 class="form-header">Field Mapping</h2>
-            <form method="post" class="mb-4 text-center">
-                <input type="hidden" name="uploaded_file"
-                    value="<?php echo htmlspecialchars($_SESSION['uploaded_file']); ?>">
-                <div id="mappingFields" class="mb-4">
-                    <h6 class="mb-3">Field Mapping</h6>
-                    <?php 
-                    // Load saved mappings if available
-                    $savedMappings = !empty($_SESSION['selected_columns']) ? $_SESSION['selected_columns'] : $_SESSION['headers'];
-
-                    foreach ($savedMappings as $header) : 
-                       
-                    ?>
-                    <div class="row mb-3 mapping-row">
-                        <div class="col-md-12 d-flex align-items-center">
-                            <select class="form-select me-2"  onchange="updateFieldNames(this)" name="field_mapping[<?php echo htmlspecialchars($header); ?>]">
-                            <option value="">Select Field</option>
-                                                        <?php 
-                                                        foreach ($savedMappings as $option) : 
-                                                            $selected = (strtolower($header) === strtolower($option)) ? 'selected' : '';
-                                                        ?>
-                                                            <option value="<?php echo htmlspecialchars($option); ?>" <?php echo $selected; ?>><?php echo htmlspecialchars($option); ?></option>
-                                                        <?php endforeach; ?>
-                                                        <option value="add_new_empty_column" >Add New Empty Column </option>
-                            </select>
-                            <input type="text" class="form-control me-2 custom-header-input"
-                                name="custom_headers[<?php echo htmlspecialchars($header); ?>]"
-                                placeholder='Previous Value Was "<?php echo empty($header) ? 'empty' : htmlspecialchars($header); ?>"'
-                                value="<?php echo htmlspecialchars($header); ?>">
-                            <button type="button" class="btn btn-danger remove-row" onclick="showConfirmModal(this)">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-                
-                <div id="addFields" class="mb-4">
-                    <button type="button" class="btn btn-success" id="addRow">
-                        <i class="fas fa-plus"></i> Add Field
-                    </button>
-                </div>
-
-                <button type="submit" name="process_csv" class="btn btn-primary mt-3">Process</button>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Confirmation Modal -->
-<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Removal</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to remove this field?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Yes, Remove</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    let fieldCounter = 1; // Counter for unique field names
-
-    // Add event listener to dynamically update input fields when a dropdown value changes
-    document.querySelectorAll('.field-mapping-select').forEach(select => {
-        select.addEventListener('change', function () {
-            updateFieldNames(this);
-        });
-    });
-
-    // Add new row button functionality
-    document.getElementById('addRow').addEventListener('click', function () {
-        let uniqueId = `new_field_${fieldCounter++}`;
-        let rowHtml = `
-            <div class="row mb-3 mapping-row">
-                <div class="col-md-12 d-flex align-items-center">
-                    <select class="form-select me-2 field-mapping-select" name="field_mapping[${uniqueId}]" 
-                        onchange="updateFieldNames(this)">
-                        <option value="">Select Field</option>
-                        <?php 
-                        $savedMappings = !empty($_SESSION['selected_columns']) ? $_SESSION['selected_columns'] : $_SESSION['headers'];
-                        foreach ($savedMappings as $option) : ?>
-                        <option value="<?php echo htmlspecialchars($option); ?>">
-                            <?php echo htmlspecialchars($option); ?>
-                        </option>
-                        <?php endforeach; ?>
-                        <option value="add_new_empty_column">Add New Empty Column</option>
-                    </select>
-                    <input type="text" class="form-control me-2 custom-header-input"
-                        name="custom_headers[${uniqueId}]"
-                        placeholder="Enter new Column name" value="">
-                    <button type="button" class="btn btn-danger remove-row" onclick="showConfirmModal(this)">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                </div>
-            </div>`;
-        document.getElementById('mappingFields').insertAdjacentHTML('beforeend', rowHtml);
-    });
-
-    // Confirmation modal functionality for removing rows
-    let removeTarget = null;
-
-    window.showConfirmModal = function (element) {
-        removeTarget = element.closest('.mapping-row');
-        var myModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'), {
-            keyboard: false
-        });
-        myModal.show();
-    };
-
-    document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
-        if (removeTarget) {
-            const noteInput = removeTarget.querySelector('input[name^="custom_headers"]');
-            const noteValue = noteInput ? noteInput.value : null;
-
-            if (noteValue) {
-                const xhr = new XMLHttpRequest();
-                xhr.open("POST", "process.php", true);
-                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState === 4) {
-                        if (xhr.status === 200) {
-                            try {
-                                const response = JSON.parse(xhr.responseText);
-                                console.log(response.message);
-                            } catch (e) {
-                                console.error("Invalid JSON response:", xhr.responseText);
-                            }
-                        } else {
-                            console.error("AJAX request failed with status:", xhr.status);
-                        }
-                    }
-                };
-                xhr.send(`note=${encodeURIComponent(noteValue)}`);
-            }
-            removeTarget.remove();
-        }
-        var myModalEl = document.getElementById('confirmDeleteModal');
-        var modal = bootstrap.Modal.getInstance(myModalEl);
-        modal.hide();
-    });
-
-    // Function to update the name attributes dynamically
-    window.updateFieldNames = function (selectElement) {
-        const selectedValue = selectElement.value;
-        const parentDiv = selectElement.closest('.col-md-12');
-        const inputField = parentDiv.querySelector('.custom-header-input');
-
-        if (selectedValue) {
-            selectElement.name = `field_mapping[${selectedValue}#${fieldCounter++}]`;
-            inputField.name = `custom_headers[${selectedValue}#${fieldCounter++}]`;
-        }
-    };
-});
-
-
-
-
-
-</script>
-
-
-
-
-            </div> <!-- End Parent Accordion -->
 
         </div>
     </div>
@@ -2759,66 +1761,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-<!-- Step 3: preview for the bad data -->
-<?php if (isset($_SESSION['bad_data']) && $_SESSION['step'] == 6) : ?>
-<div class="accordion-item">
-    <h2 class="accordion-header" id="headingfour">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsefour" aria-expanded="true" aria-controls="collapsefour">
-            Step 4: Edit Processed File
-        </button>
-    </h2>
-    <div id="collapsefour" class="accordion-collapse collapse show" aria-labelledby="headingfour" data-bs-parent="#csvProcessorAccordion">
-        <div class="accordion-body">
-            <!-- Single Table with Sticky Header -->
-            <form method="post" id="csvEditForm">
-                <div style="max-height: 400px; overflow-y: auto;" class="table-responsive">
-                    <table class="table table-bordered">
-                        <!-- Fixed Header -->
-                        <thead style="position: sticky; top: 0; background-color: white; z-index: 1;">
-                            <tr>
-                                <?php
-                                // Fetch and parse the CSV file
-                                $csvFile = fopen($_SESSION['bad_data'], 'r');
-                                $headers = fgetcsv($csvFile);
-                                foreach ($headers as $header) {
-                                    echo "<th>" . htmlspecialchars($header) . "</th>";
-                                }
-                                fclose($csvFile);
-                                ?>
-                            </tr>
-                        </thead>
-
-                        <!-- Scrollable Table Body -->
-                        <tbody>
-                            <?php
-                            // Reopen the file to read all rows
-                            $csvFile = fopen($_SESSION['bad_data'], 'r');
-                            $headers = fgetcsv($csvFile); // Get headers
-                            $rowNumber = 0; // Initialize row counter
-                            while (($row = fgetcsv($csvFile)) !== false) {
-                                echo "<tr>";
-                                foreach ($headers as $index => $header) {
-                                    // Use column names in the input field names
-                                    echo "<td><input type='text' name='csv_data[" . $rowNumber . "][" . htmlspecialchars($header) . "]' value='" . htmlspecialchars($row[$index]) . "' class='form-control' style='width: auto; min-width: 100px;' oninput='this.style.width = ((this.value.length + 1) * 8) + \"px\";'></td>";
-                                }
-                                echo "</tr>";
-                                $rowNumber++; // Increment row counter
-                            }
-                            fclose($csvFile);
-                            ?>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Fixed Save Button -->
-                <div style="position: sticky; bottom: 0; background-color: white; z-index: 1; padding: 10px 0; text-align: center;">
-                    <button type="submit" name="save_changes" class="btn btn-primary">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<?php endif; ?>
 
 
 

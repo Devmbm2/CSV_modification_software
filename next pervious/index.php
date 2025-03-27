@@ -7,8 +7,37 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
     <style>
         /* CSS remains the same as in your original code */
+
+        .slider-button {
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        /* Existing styles */
+        text-decoration: none;
+        color: #000;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 10px;
+        border-radius: 50%;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        transition: transform 0.2s ease, background-color 0.2s ease;
+        z-index: 10;
+        }
+
+        .left {
+        left: 20px; /* Position left button */
+        }
+
+        .right {
+        right: 20px; /* Position right button */
+        }
         body {
             display: flex;
             flex-direction: column;
@@ -67,6 +96,7 @@
 
         <!-- Popup -->
         <form id="csvForm" action="process.php" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="page" value="upload">
             <div id="popupOverlay" class="popup-overlay">
                 <div class="popup-content">
                     <h4>Upload File</h4>
@@ -80,6 +110,13 @@
             </div>
         </form>
     </div>
+    <!-- Slider Buttons -->
+<div class="slider-buttons">
+  <!-- Right Button -->
+  <a href="state.php" class="slider-button right">
+    <i class="fas fa-chevron-right"></i> <!-- Font Awesome Icon -->
+  </a>
+</div>
 
     <script>
         const uploadButton = document.getElementById('uploadButton');
