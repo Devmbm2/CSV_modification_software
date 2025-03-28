@@ -5,7 +5,6 @@ session_start();
 // Generate a unique key (e.g., secure token)
 $key = bin2hex(random_bytes(32)); // 64-character hex string
 
-$_SESSION['test'] = "message form the session";
 // Get current session data
 $sessionData = $_SESSION;
 

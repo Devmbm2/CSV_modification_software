@@ -1,0 +1,12 @@
+id,first_name,last_name,middle_name,nickname,initials,birthdate,extra_suffix,ssn,date_of_death,contact_type_id,contact_type_name,articulation_id,articulation,dress_id,dress,education_id,education,gender_id,gender,language_id,language,marital_status_id,marital_status,parent_id,parent,primary_address_id,primary_address_street,primary_address_street_number,primary_address_nickname,primary_address_po_box,primary_address_suite,primary_address_is_registered_agent,primary_address_city_id,primary_address_city,primary_address_country_id,primary_address_country,primary_address_county_id,primary_address_county,primary_address_state_id,primary_address_state,primary_address_zip_code_id,primary_address_zip_code,contact_email_id,contact_email,phone_number_id,phone_number,phone_number_area_code,phone_number_country_code,phone_number_extension,phone_number_extension_label,phone_number_nickname,phone_number_is_ada,phone_number_is_registered_agent,additional_fields_data,is_archived,data,note,empty
+21277,Robert,Hines,D.,Rob,RDH,,Esq.,,,7,Lawyer,,,,,,,35,Male,,,,,2904,"Hines Norman Hines",61482,"315 S Hyde Park Ave",,"Primary Address",,,f,8706,Tm,,,,,52950,dfdf,49421,33606,5121,rhines@hnh-law.com,33685,2650100,813,1,,,"Office Phone",f,f,,f,{},"Margo:  mland@hnh-law.com
+Pam:  pdiez@hnh-law.com
+Jillian: jrivera@hnh-law.com
+Hines Norman Hines PL Tax ID#  59-3547576
+
+South Tampa Office 
+315 S. Hyde Park Ave, Tampa FL 33606 
+Phone 251-8659
+To have a guardian of the Property appointed it is the filing fee plus $1,500 for Roberts attorney fees.",
+21487,Josif,Josifovski,,,,03-07-49,,,,1,Client,,,,,,,35,Male,39,English,55708,Married,,,61989,"219 33rd St W",,Home,,"Lot 43",f,23647,Palmetto,53004,"United States",9199,Manatee,1235,dfdf,23648,34221,,,,,,,,,,,,,f,{},,
+21837,Daniel,Dresch,C.,,DCD,,,,,7,Lawyer,,,,,,,35,Male,,,,,6545,"McGuinnes & Cicero",61991,"1000 Sawgrass Corporate Parkway",,"Office of McGuinnes & Cicero",,"Suite 590",f,53284,Sunrise,53004,"United States",1274,Broward,1235,dfdffd,28508,33323,5134,dan.dresch@mc-atty.com,33707,838-8832,954,1,,,"Office Main Line",f,f,,f,{},,

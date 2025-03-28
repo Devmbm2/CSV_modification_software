@@ -1137,6 +1137,77 @@ if (isset($_POST['address_mapping_submit'])) {
 
 
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_changes'])) {
+    // Ensure the output CSV file exists in the session
+    if (!isset($_SESSION['output_csv']) || !file_exists($_SESSION['output_csv'])) {
+        die("Output CSV file not found.");
+    }
+
+    // Read the headers of the bad_data CSV file
+    $badDataFile = $_SESSION['bad_data'];
+    if (!file_exists($badDataFile)) {
+        die("Bad data file not found.");
+    }
+
+    $badDataHeaders = [];
+    if (($handle = fopen($badDataFile, 'r')) !== false) {
+        $badDataHeaders = fgetcsv($handle);
+        fclose($handle);
+    }
+
+    // Read the headers of the output CSV file
+    $outputCsvFile = $_SESSION['output_csv'];
+    $outputHeaders = [];
+    if (($handle = fopen($outputCsvFile, 'r')) !== false) {
+        $outputHeaders = fgetcsv($handle);
+        fclose($handle);
+    }
+
+    // Create a mapping between bad_data headers and output CSV headers
+    $headerMap = [];
+    foreach ($badDataHeaders as $header) {
+        $headerMap[$header] = array_search($header, $outputHeaders);
+    }
+
+    // Read the submitted form data
+    $submittedData = $_POST['csv_data'] ?? [];
+
+    // Prepare the updated rows for the output CSV
+    $updatedRows = [];
+    foreach ($submittedData as $rowNumber => $rowData) {
+        $updatedRow = array_fill(0, count($outputHeaders), ''); // Initialize with empty values
+        foreach ($rowData as $columnName => $value) {
+            if (isset($headerMap[$columnName]) && $headerMap[$columnName] !== false) {
+                $updatedRow[$headerMap[$columnName]] = $value; // Map the value to the correct column
+            }
+        }
+        $updatedRows[] = $updatedRow;
+    }
+
+    // Write the updated rows back to the output CSV file
+    if (($handle = fopen($outputCsvFile, 'a')) !== false) {
+        foreach ($updatedRows as $row) {
+            fputcsv($handle, $row); // Write each row to the output CSV file
+        }
+        fclose($handle);
+    }
+
+    // Update the session's output_csv with the updated file path
+    $_SESSION['output_csv'] = $outputCsvFile;
+
+    // Unset the bad_data file from the session
+    unset($_SESSION['bad_data']);
+
+    echo "Data successfully added to the output CSV file. Bad data file has been cleared.";
+
+    // Redirect to city.php with success message
+    $message = "Data successfully added to the output CSV file. Bad data file has been cleared.";
+    header("Location: preview.php?status=success&message=". urlencode($message));
+    exit();
+}
+
+
+
 
 // size adjustments
 
@@ -1357,6 +1428,48 @@ if (isset($_POST['reset'])) {
     exit;
 }
 
+
+
+// Handle Save Mapping Action
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_mapping'])) {
+    $mappingName = trim($_POST['mapping_name']);
+
+    // Check if the mapping name is provided
+    if (empty($mappingName)) {
+        echo "<script>alert('Mapping name cannot be empty.');</script>";
+        exit;
+    }
+
+    // Define the storage directory
+    $storageDir = __DIR__ . '/session_storage/';
+    if (!is_dir($storageDir)) {
+        mkdir($storageDir, 0777, true); // Create directory if it doesn't exist
+    }
+
+    // Check if the mapping name already exists
+    $storagePath = $storageDir . $mappingName . '.sess';
+    if (file_exists($storagePath)) {
+        echo "<script>alert('Mapping name already exists. Please choose a different name.');</script>";
+        exit;
+    }
+
+    // Serialize and save the session data
+    $sessionData = $_SESSION;
+    $serializedData = serialize($sessionData);
+    file_put_contents($storagePath, $serializedData);
+
+
+
+    echo "<script>alert('Mapping saved successfully with name: " . htmlspecialchars($mappingName) . "');</script>";
+
+    header("Location: download.php");
+    exit;
+}
+
+
+
+
+
 function update_file($file){
   $uploadedFilePath=$file;
     if ($uploadedFilePath) {
@@ -1446,74 +1559,104 @@ function update_file($file){
 }
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_changes'])) {
-    // Ensure the output CSV file exists in the session
-    if (!isset($_SESSION['output_csv']) || !file_exists($_SESSION['output_csv'])) {
-        die("Output CSV file not found.");
+// Handle Save Mapping Action via AJAX
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'save_mapping') {
+    $mappingName = trim($_POST['mapping_name']);
+
+    // Check if the mapping name is provided
+    if (empty($mappingName)) {
+        echo json_encode(['status' => 'error', 'message' => 'Mapping name cannot be empty.']);
+        exit;
     }
 
-    // Read the headers of the bad_data CSV file
-    $badDataFile = $_SESSION['bad_data'];
-    if (!file_exists($badDataFile)) {
-        die("Bad data file not found.");
+    // Define the storage directory
+    $storageDir = __DIR__ . '/session_storage/';
+    if (!is_dir($storageDir)) {
+        mkdir($storageDir, 0777, true); // Create directory if it doesn't exist
     }
 
-    $badDataHeaders = [];
-    if (($handle = fopen($badDataFile, 'r')) !== false) {
-        $badDataHeaders = fgetcsv($handle);
-        fclose($handle);
+    // Check if the mapping name already exists
+    $storagePath = $storageDir . $mappingName . '.sess';
+    if (file_exists($storagePath)) {
+        echo json_encode(['status' => 'error', 'message' => 'Mapping name already exists. Please choose a different name.']);
+        exit;
     }
 
-    // Read the headers of the output CSV file
-    $outputCsvFile = $_SESSION['output_csv'];
-    $outputHeaders = [];
-    if (($handle = fopen($outputCsvFile, 'r')) !== false) {
-        $outputHeaders = fgetcsv($handle);
-        fclose($handle);
-    }
+    // Serialize and save the session data
+    $sessionData = $_SESSION;
+    $serializedData = serialize($sessionData);
+    file_put_contents($storagePath, $serializedData);
 
-    // Create a mapping between bad_data headers and output CSV headers
-    $headerMap = [];
-    foreach ($badDataHeaders as $header) {
-        $headerMap[$header] = array_search($header, $outputHeaders);
-    }
+   
 
-    // Read the submitted form data
-    $submittedData = $_POST['csv_data'] ?? [];
+    echo json_encode(['status' => 'success', 'message' => 'Mapping saved successfully with name: ' . htmlspecialchars($mappingName)]);
+    exit;
+}
 
-    // Prepare the updated rows for the output CSV
-    $updatedRows = [];
-    foreach ($submittedData as $rowNumber => $rowData) {
-        $updatedRow = array_fill(0, count($outputHeaders), ''); // Initialize with empty values
-        foreach ($rowData as $columnName => $value) {
-            if (isset($headerMap[$columnName]) && $headerMap[$columnName] !== false) {
-                $updatedRow[$headerMap[$columnName]] = $value; // Map the value to the correct column
+
+// Handle AJAX Request to Fetch Mappings
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'fetch_mappings') {
+    // Define the storage directory
+    $storageDir = __DIR__ . '/session_storage/';
+    $mappings = [];
+
+    if (is_dir($storageDir)) {
+        $files = scandir($storageDir);
+        foreach ($files as $file) {
+            if (pathinfo($file, PATHINFO_EXTENSION) === 'sess') {
+                $mappings[] = pathinfo($file, PATHINFO_FILENAME);
             }
         }
-        $updatedRows[] = $updatedRow;
     }
 
-    // Write the updated rows back to the output CSV file
-    if (($handle = fopen($outputCsvFile, 'a')) !== false) {
-        foreach ($updatedRows as $row) {
-            fputcsv($handle, $row); // Write each row to the output CSV file
-        }
-        fclose($handle);
-    }
-
-    // Update the session's output_csv with the updated file path
-    $_SESSION['output_csv'] = $outputCsvFile;
-
-    // Unset the bad_data file from the session
-    unset($_SESSION['bad_data']);
-
-    echo "Data successfully added to the output CSV file. Bad data file has been cleared.";
-
-    // Redirect to city.php with success message
-    $message = "Data successfully added to the output CSV file. Bad data file has been cleared.";
-    header("Location: preview.php?status=success&message=". urlencode($message));
-    exit();
+    // Return mappings as JSON
+    echo json_encode(['status' => 'success', 'mappings' => $mappings]);
+    exit;
 }
+
+// Handle Load Mapping Action via AJAX
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'load_mapping') {
+    $mappingName = trim($_POST['mapping_name']);
+
+    // Define the storage directory
+    $storageDir = __DIR__ . '/session_storage/';
+    $storagePath = $storageDir . $mappingName . '.sess';
+
+    // Check if the mapping file exists
+    if (!file_exists($storagePath)) {
+        echo json_encode(['status' => 'error', 'message' => 'Mapping file not found.']);
+        exit;
+    }
+
+    // Load the serialized session data
+    $serializedData = file_get_contents($storagePath);
+    $sessionData = unserialize($serializedData);
+
+    // Replace the current session with the loaded session
+    $_SESSION = $sessionData;
+
+    echo json_encode(['status' => 'success', 'message' => 'Mapping loaded successfully.']);
+    exit;
+}
+
+
+
+
+
+
+// Get all available mappings
+$storageDir = __DIR__ . '/session_storage/';
+$mappings = [];
+if (is_dir($storageDir)) {
+    $files = scandir($storageDir);
+    foreach ($files as $file) {
+        if (pathinfo($file, PATHINFO_EXTENSION) === 'sess') {
+            $mappings[] = pathinfo($file, PATHINFO_FILENAME);
+        }
+    }
+}
+
+
 
 
 // Reset session if page is reloaded

@@ -90,7 +90,70 @@
     </style>
 </head>
 <body>
-    <h1 class="display-4">CSV Processing Tool</h1>
+<div class="container-fluid">
+                                <style>
+                                    /* Custom Styles */
+
+                                    .btn-close {
+                                                background-color: #fffbfb;
+                                                color: white; 
+                                    }  
+                                    .load-mapping-btn {
+                                                margin-left: 10px;
+                                            }
+                                            .modal-body ul {
+                                                list-style-type: none;
+                                                padding: 0;
+                                            }
+                                            .modal-body li {
+                                                margin-bottom: 10px;
+                                            }
+                                            
+                                </style>
+                                <div class="row align-items-center mb-3">
+                                    <!-- Title -->
+                                    <div class="col text-center" style="padding-left: 450px;">
+                                        <p class="display-5 m-0">CSV Processing Tool</p>
+                                    </div>
+
+                                    
+                                    <!-- Load Mapping Button -->
+                                    <div class="col-auto text-end" style="padding-right:200px;">
+                                        <button type="button" class="btn btn-info" id="loadMappingButton">
+                                            <i class="fas fa-folder-open me-2"></i>Saved Mappings
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="container-fluid">
+                                <!-- Modal for Loading Mappings -->
+                                <div class="modal fade" id="loadMappingModal" tabindex="-1" aria-labelledby="loadMappingModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-info text-white">
+                                                <h5 class="modal-title" id="loadMappingModalLabel">Available Mappings</h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <!-- Mappings will be dynamically loaded here -->
+                                                <p>Loading mappings...</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                  <!-- Include jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Include Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+                        <script src="asset/utils.js"></script>
+                        <!-- JavaScript for AJAX -->
+
+
+
+
     <div id="csvUploadSection" class="container d-flex justify-content-center">
         <button id="uploadButton" class="btn btn-primary btn-lg">Upload File</button>
 
@@ -109,7 +172,9 @@
                 </div>
             </div>
         </form>
+
     </div>
+
     <!-- Slider Buttons -->
 <div class="slider-buttons">
   <!-- Right Button -->
@@ -171,5 +236,16 @@
             dragArea.innerHTML = `<p>Selected File: ${file.name}</p>`;
         }
     </script>
+
+
+                               <!-- Display the attached file if it exists -->
+           <?php     if (isset($_SESSION['uploaded_file'])): ?>
+        <div class="mb-3 text-success">
+            File Attached: <?php echo basename($_SESSION['uploaded_file']); ?>
+        </div>
+    <?php endif; ?>
+
+
+
 </body>
 </html>

@@ -1,0 +1,90 @@
+id,first_name,last_name,middle_name,nickname,initials,birthdate,extra_suffix,ssn,date_of_death,contact_type_id,contact_type_name,articulation_id,articulation,dress_id,dress,education_id,education,gender_id,gender,language_id,language,marital_status_id,marital_status,parent_id,parent,primary_address_id,primary_address_street,primary_address_street_number,primary_address_nickname,primary_address_po_box,primary_address_suite,primary_address_is_registered_agent,primary_address_city_id,primary_address_city,primary_address_country_id,primary_address_country,primary_address_county_id,primary_address_county,primary_address_state_id,primary_address_state,primary_address_zip_code_id,primary_address_zip_code,contact_email_id,contact_email,phone_number_id,phone_number,phone_number_area_code,phone_number_country_code,phone_number_extension,phone_number_extension_label,phone_number_nickname,phone_number_is_ada,phone_number_is_registered_agent,additional_fields_data,is_archived,data,note,empty
+21773,Dylan,Abbatiello,,,,02-02-05,,,,10,Basic,,,,,,,35,Male,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,f,{},,
+21779,Darrell,Riles,,,,,,,,5,Adjuster,,,,,,,35,Male,,,,,,,,,,,,,,,,,,,,,,,,,,33614,699-6677,972,1,,,Primary,f,f,,f,{},,
+21786,Bruce,Stephens,,,,1/26/1958,,,,10,Basic,,,,,,,35,Male,,,,,,,61945,"13912 Fletchers Mill Dr",,Primary,,,f,8706,Tm,53004,"United States",52787,Hillsborough,1235,Florida,46700,33613,,,33624,453-4524,813,1,,,Primary,f,f,,f,{},,
+21797,William,Brumby,B.,,WBB,,,,,7,Lawyer,,,,,,,35,Male,,,,,3569,"Quintairos Prieto Wood & Boyer, P.A. - Orlando Office",,,,,,,,,,,,,,,,,,5092,william.brumby@apwblaw.com,33634,286-8818,813,1,,,"Main Line",f,f,,f,{},,
+6487,Darl,Funkhouser,,,DF,3/27/1950,,163-40-3587,,1,Client,,,,,,,35,Male,39,English,55708,Married,,,31902,"3918 Yellow Finch Lane",,"Primary Address",,,f,19972,Lutz,,,,,52950,Florida,33265,33558,5112,thesandar1@verizon.net,33678,313-0847,813,1,,,Mobile,f,f,,f,{},,
+21277,Robert,Hines,D.,Rob,RDH,,Esq.,,,7,Lawyer,,,,,,,35,Male,,,,,2904,"Hines Norman Hines",61482,"315 S Hyde Park Ave",,"Primary Address",,,f,8706,Tm,,,,,52950,dfdf,49421,33606,5121,rhines@hnh-law.com,33685,2650100,813,1,,,"Office Phone",f,f,,f,{},"Margo:  mland@hnh-law.com
+Pam:  pdiez@hnh-law.com
+Jillian: jrivera@hnh-law.com
+Hines Norman Hines PL Tax ID#  59-3547576
+
+South Tampa Office 
+315 S. Hyde Park Ave, Tampa FL 33606 
+Phone 251-8659
+To have a guardian of the Property appointed it is the filing fee plus $1,500 for Roberts attorney fees.",
+21835,Ryan,Rizzolo,,,,,,,,5,Adjuster,,,,,,,35,Male,,,,,,,,,,,,,,,,,,,,,,,,,,33697,722-4462,608,1,,,primary,f,f,,f,{},,
+21487,Josif,Josifovski,,,,03-07-49,,,,1,Client,,,,,,,35,Male,39,English,55708,Married,,,61989,"219 33rd St W",,Home,,"Lot 43",f,23647,Palmetto,53004,"United States",9199,Manatee,1235,dfdf,23648,34221,,,,,,,,,,,,,f,{},,
+21837,Daniel,Dresch,C.,,DCD,,,,,7,Lawyer,,,,,,,35,Male,,,,,6545,"McGuinnes & Cicero",61991,"1000 Sawgrass Corporate Parkway",,"Office of McGuinnes & Cicero",,"Suite 590",f,53284,Sunrise,53004,"United States",1274,Broward,1235,dfdffd,28508,33323,5134,dan.dresch@mc-atty.com,33707,838-8832,954,1,,,"Office Main Line",f,f,,f,{},,
+20565,Christian,Lorteau,,,,2/20/2014,,,,1,Client,,,,,,,35,Male,39,English,,,,,60058,"14935 Pine Crest Road",,"Primary Address",,,f,8706,Tamp,,,,,1235,Florida,46700,33613,,,,,,,,,,,,,f,,"5 year old minor child to Darlyne Damis-Lorteau",
+21417,George,Gripp,,,,8/23/1965,,176505015,,1,Client,,,,,,,35,Male,39,English,55708,Married,6366,"Shoe Fly Shoe, Inc.",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,f,{},,
+10,Clayton,Jones,Edgar,Jones,CEJ,,,,,2,Defendant,,,,,,,35,Male,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,f,{},,
+11,Charles,Pugh,Blane,Pugh,CBP,,,,,6,Person,,,,,,,35,Male,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,f,{},,
+12,Tanner,Jones,Watson,Jones,TWJ,02-06-97,,,,6,Person,,,,,,,35,Male,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,f,{},,
+33,Michael,McKinney,F,,,,,315-44-3122,,1,Client,,,,,,,35,Male,39,English,,,,,18994,"1850 Ravenridge Street",,"Primary Address",,,f,1293,"Wesley Chapel",,,,,52950,Florida,15390,33543,661,mckcar@msn.com,,,,,,,,,,,f,,,
+53,David,Koscielniak,,,,6/19/1964,,266-83-8863,,1,Client,,,,,,,35,Male,39,English,,,,,19034,"2954 Downan Point Drive",,"Primary Address",,,f,52952,"Land O' Lakes",,,,,1235,Florida,15401,34638,,,,,,,,,,,,,f,,"INCORRECT ADDRESS 10/6/16 BHP
+Spoke to Katrina and she provided their updated address 11/04/05 TKV
+
+Spoke to Mike and he provided new address 04/08/05 TKV",
+163,Ashok,Yarlagadda,,,,,,117-81-2669,,1,Client,,,53003,Average,,,35,Male,39,English,,,,,19254,"1112 Facet View Way",,"Primary Address",,,f,44998,Valrico,53004,"United States",,,52950,Florida,44999,33594,,,,,,,,,,,,,f,,,
+307,John,Krawiec,J.,,,1/23/1972,,590-50-1106,,1,Client,,,,,,,35,Male,39,English,,,,,19542,"4618 Ackerly Way",,"Primary Address",,,f,3210,Brandon,,,,,52950,Florida,34526,33511,715,john@weachterinsurance.com,7305,813-831-8889,,,,,"Office Phone",f,f,,f,,,
+335,Adrian,Johnson,L,,,,,593-41-5784,,1,Client,,,,,,,35,Male,39,English,,,,,19598,"4501 North 20th St",,"Primary Address",,,f,8706,Tamp,,,,,52950,Florida,30102,33610,722,letha1214@aol.com,,,,,,,,,,,f,,"new cell 12 10 15 BHP",
+396,Ian,Radcliffe,,,,,,,,8,"Claims Adjuster",,,,,,,35,Male,39,English,,,3772,"Direct Adjusting Company",19720,"P.O. Box 9289",,"Primary Address",,,f,2129,Clinton,,,,,52990,Iowa,53061,52733-2989,,,7402,"800-403-1077 X 46381",,,,,"Office Phone",f,f,,f,,,
+400,Zulfiqar,"Ali, MD",,,,,,,,9,Doctor,,,,,,,35,Male,39,English,,,,,19728,"2120 Lakeland Hills Boulevard",,"Primary Address",,,f,1295,Lakeland,,,,,1235,Florida,53063,33805-2906,,,7409,863-688-2334,,,,,"Office Phone",f,f,,f,,,
+459,Vikas,"Soma, MD",R.,,,,,,,9,Doctor,,,,,,,35,Male,39,English,,,,,19846,"38035 Medical Center Avenue",,"Primary Address",,,f,7196,Zephyrhills,,,,,1235,Florida,7197,33540,,,7480,813-788-1400,,,,,"Office Phone",f,f,,f,,,
+498,Kevin,Inglis,,,,,,139-58-4048,,1,Client,,,,,,,35,Male,39,English,,,,,19924,"205 46th Ave Terrace W Apt 423",,"Primary Address",,,f,11560,Bradenton,,,,,52965,Florida,12190,34207,754,kinglis14@yahoo.com,,,,,,,,,,,f,,"old number as of 3 9 19 941 284 8238",
+532,Michael,"Patch, MD",,,,,,,,9,Doctor,,,,,,,35,Male,39,English,,,,,19992,"3100 East Fletcher Avenue",,"Primary Address",,,f,8706,Tamp,,,,,1235,Florida,46700,33613,,,7581,313-343-3400,,,,,"Office Phone",f,f,,f,,,
+538,Miguel,Hernandez,Thomas,,,6/26/2002,,***-**-7650,,1,Client,,,,,,,35,Male,39,English,,,,,20004,"1314 W. Sligh Ave  Apt 902",,"Primary Address",,,f,8706,Tamp,,,,,52950,Florida,15391,33604,,,,,,,,,,,,,f,,,
+754,Camrone,Brown,,,,11-01-01,,,,1,Client,,,,,,,35,Male,39,English,,,,,20436,"1919 W. 10th Street #9",,"Primary Address",,,f,1295,Lakeland,,,,,52950,Florida,9194,33805,,,,,,,,,,,,,f,,"NO PIP for MVA  2/21/20
+incorrect address 9/9/20 BHP",
+931,Javier,Dutchen,,,,12/19/1997,,591-73-8240,,1,Client,,,,,,,35,Male,39,English,,,,,20790,"4407 W. North Street",,"Primary Address",,,f,8706,Tamp,,,,,1235,Florida,37615,33614,830,javier.duchen@yahoo.com,,,,,,,,,,,f,,"Javier Dutchen was driving on West Waters Avenue crossing the intersection of Manhattan Avenue when the other driver coming from the opposite direction made an improper turn in front of him causing the collision. He has injuries to his neck and back.",
+939,Keith,Dills,,,,,,,,8,"Claims Adjuster",,,,,,,35,Male,39,English,,,3705,"Esurance Insurance",20806,"P.O. Box 335",,"Primary Address",,,f,10781,Addison,,,,,52963,Texas,10782,75001,835,kdills@esurance.com,8093,813-747-6041,,,,,"Office Phone",f,f,,f,,,
+967,Abdellah,Elmoudni,,,,,,768-96-0998,,1,Client,,,,,,,35,Male,39,English,,,,,20862,"13833 Orange Sunset Drive Unit 101",,"Primary Address",,,f,8706,Tam,,,,,52950,Florida,50540,33618,,,,,,,,,,,,,f,,"Abdellah was at a complete stop at a red light when he was rear ended by the vehicle behind him TPD",
+1002,Keith,Meyer,,,,,,,,16,Judge,,,,,,,35,Male,39,English,,,2097,"Pinellas County Clerk of the Court",20932,"315 Court Street, Room 468",,"Primary Address",,,f,15394,Clearwater,,,,,1235,Florida,32349,33756,845,section20@jud6.org,8171,727-464-3548,,,,,"Office Phone",f,f,,f,,,
+1245,Bruce,Pfefferle,R.,,,05-03-46,,,,2,Defendant,,,,,,,35,Male,39,English,,,,,21418,"6192 Barclay Ave.",,"Primary Address",,,f,11566,Brooksville,,,,,1235,Florida,23649,34609,,,,,,,,,,,,,f,,,
+1254,Eric,Nelson,B.,,,4/13/1982,,,,2,Defendant,,,,,,,35,Male,39,English,,,,,21436,"3045 Pointeview Drive",,"Primary Address",,,f,8706,Tam,,,,,1235,Florida,53243,33611-513,,,,,,,,,,,,,f,,"DL issued in Washington",
+1338,Marquvius,Dixon,,,,2/24/1996,,*******78,,1,Client,,,,,,,35,Male,39,English,,,,,21604,"207 Pennsylvania Avenue",,"Primary Address",,,f,15394,Clearwater,,,,,1235,Florida,42794,33755,903,peterlong207@gmail.com,,,,,,,,,,,f,,,
+1458,Michael,Stanley,D.,,,08-03-69,,383-94-8820,,1,Client,,,,,,,35,Male,39,English,,,,,21844,"4302 Kipling Ave.",,"Primary Address",,,f,9191,"Plant City",,,,,52950,Florida,40940,33566,925,vettezr1@outlook.com,,,,,,,,,,,f,,"per PO - change of address 6/15/17 BHP
+My name is Mike Stanley and I have a case that is already going and I let my lawyer go, he did some things that I don?t agree with. I need a new Lawyer, the case is in Hillsborough with Judge Wolfe. What happen to me is I was in the bathroom going number 2 when this guy threw a m80 homemade and it blew up in my face and knocked me out and caused brain injury to me. I really don?t want a group like Morgan & Morgan, I like smaller firms and my friend, Eric Reeves (an agent for USAA) told me about you.
+
+City Accident Occurred In was Seffner",
+1469,"Sebastiano & Helen",Fazzina,,,,,,,,1,Client,,,,,,,35,Male,39,English,,,,,21866,"3515 37th Street West",,"Primary Address",,,f,11560,Bradenton,,,,,1235,Florida,45005,34205,,,,,,,,,,,,,f,,,
+1471,Eduardo,Denis,,,,,,040-32-6268,,1,Client,,,,,,,35,Male,53273,"Spanish Mostly",,,,,21870,"4010 West Fig Street",,"Primary Address",,,f,8706,Tam,,,,,52950,Florida,18083,33609,,,,,,,,,,,,,f,,"6 18 1928 medicare DOB",
+1483,Mark,"Gibson, CPO",,,,,,,,9,Doctor,,,,,,,35,Male,39,English,,,,,21894,"3334 Capital Medical Boulevard",,"Primary Address",,,f,3174,Tallahassee,,,,,1235,Florida,53278,32308-4470,,,8746,850-877-8174,,,,,"Office Phone",f,f,,f,,,
+1529,Zachary,Smith,,,,,,,,8,"Claims Adjuster",,,,,,,35,Male,39,English,,,516,EgoScue,21986,"P.O. Box 33490",,"Primary Address",,,f,2812,"San Antonio",,,,,52963,Texas,53112,78265,,,8799,"800-531-8722 X 44519",,,,,"Office Phone",f,f,,f,,,
+1676,Thomas,Horsley,,,,12/15/1951,,346-48-5529,,1,Client,,,,,,,35,Male,39,English,,,,,22280,"3502 N Tam Street, Apt 3",,"Primary Address",,,f,8706,Tam,,,,,52950,Florida,40941,33603,966,horsleythomas65@gmail.com,,,,,,,,,,,f,,"State Farm Policy # 761-5021-D02-59K",
+1740,Mark,Phillips,,,,6/25/1963,,,,2,Defendant,,,,,,,35,Male,39,English,,,,,22408,"310 S. Arrawana Ave Unit D",,"Primary Address",,,f,8706,Tam,,,,,52950,Florida,18083,33609,,,,,,,,,,,,,f,,"Krewe of Cavaliers - Tampa, FL",
+1796,Trung,Nguyen,B,,,,,768-96-1828,,1,Client,,,,,,,35,Male,53077,"Vietnamese Only",,,,,22520,"1805 Meridel Ave",,"Primary Address",,,f,8706,Tampa,,,,,52950,Florida,53340,33612-6033,,,,,,,,,,,,,f,,"Change of Address per PO 2 25 19 DML",
+1856,Uriah,Wagner,L.,,,6/22/1997,,101-86-9432,,1,Client,,,,,,,35,Male,39,English,,,,,22640,"12213 Phillips Lane #5",,"Primary Address",,,f,37611,Gibsonton,,,,,52950,Florida,37612,33534,,,,,,,,,,,,,f,,"moved left no forwarding address 12/21/15 BHP
+(Phone #s also No good)",
+1937,Tuan,Le,,,,11-11-74,,586-42-6253,,1,Client,,,,,,,35,Male,39,English,,,,,22802,"6903 Drury Street",,"Primary Address",,,f,8706,111,,,,,1235,Florida,28515,33635,1013,tuan.le@t-mobile.com,,,,,,,,,,,f,,"incorrect address 12/20/13 BHP",
+1952,Dale,Dudley,A.,,,11-03-54,,007-54-7819,,1,Client,,,,,,,35,Male,39,English,,,,,22832,"4436 South Laurel Point Drive",,"Primary Address",,,f,1295,Lakeland,,,,,52950,Florida,12180,33813,1017,d.dudley@mosaicco.com,9317,863-844-5033,,,,,"Office Phone",f,f,,f,,,
+2002,Chirag,"Shah, DO",,,,,,,,9,Doctor,,,,,,,35,Male,39,English,,,,,22932,"2100 Via Bella Boulevard #207",,"Primary Address",,,f,52952,"Land O' 1233",,,,,1235,Florida,7209,34639,,,9371,813-528-4960,,,,,"Office Phone",f,f,,f,,,
+2058,Adel,Musa,,,,,,281-96-2689,,1,Client,,,,,,,35,Male,39,English,,,,,23044,"729 Berry Bramble Drive",,"Primary Address",,,f,3210,Brandon,53004,"United States",,,1235,Florida,3211,33510,1029,adelmusa2@gmail.com,,,,,,,,,,,f,,"Two motor vehicle crashes Hired us on October 30 for a crash that happened November 5 2014 So we ha",
+2143,Andrew,Mora,,,,04-07-86,,115-70-5974,,1,Client,,,,,,,35,Male,39,English,,,,,23214,"7807 N. Dale Mabry Hwy.",,"Primary Address",,,f,8706,111,,,,,1235,Florida,37615,33614,1046,andrew@moramoto.com,,,,,,,,,,,f,,"vehicle reversed into him - St. Pete Police responded
+
+Clt has a new email 5/16/16 kbe
+
+old address (updated 12/22/22) - 266 Northwest Lincoln Circle in St. Pete Florida 33702
+
+Below is his business address.  Asked me to mail check there.",
+2225,Alcibiedes,Saturno,,,,09-08-49,,466-77-7746,,1,Client,,,,,,,35,Male,39,English,,,,,23378,"4702 W Wisconsin Ave",,"Primary Address",,,f,8706,Tampa,,,,,52950,Florida,40942,33616,1065,JovaniAmar31@yahoo.com,,,,,,,,,,,f,,"dad Alcibiades' (AL) GF Linda 207-577-2913
+son Jovani 330-9412
+grandson Jovani 813-816-9565
+
+change of address per Linda Abbott(GF) in an email to MDP 4/23/20 BHP
+
+email Alcibiades uses - gramlin2016@gmail.com
+",
+2298,Peter,Macaluso,,,,,Esq.,,,7,Lawyer,,,,,,,35,Male,39,English,,,,,23524,"3302 North Tampa Street",,"Primary Address",,,f,8706,Tm,,,,,52950,Florida,40941,33603,,,9726,813-251-2831,,,,,"Office Phone",f,f,,f,,"Really nice guy,",
+2422,Shelly,Houston,D.,,,09-04-82,,593-20-1096,,1,Client,,,,,,,35,Male,39,English,,,,,23772,"5707 Los Ventanas Road",,"Primary Address",,,f,8706,Tm,,,,,52965,Florida,23638,33617,1116,dondonhouston@yahoo.com,,,,,,,,,,,f,,"incorrect address 12/7/16 BHP",
+2438,"G. Michael",Harris,,,,6/20/1964,,264-75-4810,,1,Client,,,,,,,35,Male,39,English,,,,,23804,"18 S. Pine Circle",,"Primary Address",,,f,53465,Belleair,,,,,52950,Florida,32349,33756,1120,gmh@tmbay.rr.com,9907,727-584-2883,,,,,"Office Phone",f,f,,f,,,
+2475,David,McDonald,G.,,,3/21/1958,,,,2,Defendant,,,,,,,35,Male,39,English,,,,,23878,"4364  70th Avenue North",,"Primary Address",,,f,33268,"Pinellas Park",,,,,52950,Florida,33269,33781,,,,,,,,,,,,,f,,,
+2553,Rafael,"Serrano, MD",,,,,,,,9,Doctor,,,,,,,35,Male,39,English,,,,,24034,"5 Tm General Circle",,"Primary Address",,,f,8706,Tm,,,,,1235,Florida,49421,33606,,,10054,813-253-2068,,,,,"Office Phone",f,f,,f,,,
+2579,Mark,Robinson,C,,,,,263-23-7929,,1,Client,,,,,,,35,Male,39,English,,,,,24086,"6320 E 113th Ave.",,"Primary Address",,,f,53038,"Temple Terrace",,,,,1235,Florida,53486,33617-3138,,,,,,,,,,,,,f,,"Client s number is disconnected for a week he can be reached at his mothers 813 980 6569 1 16 12 LL
+
+USPS - Address change 1/5/22  lkr
+USPS - Unable to Forward  6/7/22   lkr",
+2608,Steve,Harwell,,,,,,,,8,"Claims Adjuster",,,,,,,35,Male,39,English,,,970,"State Farm Subrogation Services",24144,"P.O. Box 106171",,"Primary Address",,,f,1178,Atlanta,,,,,52948,Georgia,52809,30348,,,10130,863-318-3152,,,,,"Office Phone",f,f,,f,,,
+2659,Carlos,"Plazas Sanchez",,,,10-11-48,,,,1,Client,,,,,,,35,Male,39,English,,,,,24246,"13627 Fareham Road",,"Primary Address",,,f,6729,Odessa,53004,"United States",,,1235,Florida,44997,33556,,,,,,,,,,,,,f,,"Progressive Policy #",74090076
+2742,Charles,Wilson,,,,11/17/1954,,,,2,Defendant,,,,,,,35,Male,39,English,,,,,24412,"207 Black Cloud Ln",,"Primary Address",,,f,3861,Davenport,,,,,52950,Florida,12181,33837,,,,,,,,,,,,,f,,"Progressive Insurance Policy #: 07551615",

@@ -88,7 +88,28 @@
             max-height: 800px;
             overflow-y: auto;
         }
+.btn-close {
+            background-color: #fffbfb;
+            color: white; 
+}   
 
+ /* Custom Styles */
+ .load-mapping-btn {
+            margin-left: 10px;
+        }
+        .modal-body ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .modal-body li {
+            margin-bottom: 10px;
+        }
+        
+
+
+
+
+        
     </style>
 </head>
 <body>
@@ -103,7 +124,64 @@
     ?>
     <div class="container-md">
         <br>
-                <p class="display-6 text-center" >CSV Processing Tool</p>
+                            <div class="container-fluid">
+                                <style>
+                                    /* Custom Styles */
+
+                                    .btn-close {
+                                                background-color: #fffbfb;
+                                                color: white; 
+                                    }  
+                                    .load-mapping-btn {
+                                                margin-left: 10px;
+                                            }
+                                            .modal-body ul {
+                                                list-style-type: none;
+                                                padding: 0;
+                                            }
+                                            .modal-body li {
+                                                margin-bottom: 10px;
+                                            }
+                                            
+                                </style>
+                                <div class="row align-items-center mb-3">
+                                    <!-- Title -->
+                                    <div class="col text-center">
+                                        <p class="display-6 m-0">CSV Processing Tool</p>
+                                    </div>
+
+                                    
+                                    <!-- Load Mapping Button -->
+                                    <div class="col-auto text-end">
+                                        <button type="button" class="btn btn-info" id="loadMappingButton">
+                                            <i class="fas fa-folder-open me-2"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="container-fluid">
+                                <!-- Modal for Loading Mappings -->
+                                <div class="modal fade" id="loadMappingModal" tabindex="-1" aria-labelledby="loadMappingModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-info text-white">
+                                                <h5 class="modal-title" id="loadMappingModalLabel">Available Mappings</h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <!-- Mappings will be dynamically loaded here -->
+                                                <p>Loading mappings...</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+
+                        <script src="asset/utils.js"></script>
+
+
+
+                            
                 <hr>
            <?php     if (isset($_GET['status']) && $_GET['status'] === 'success' && isset($_GET['message'])) { ?>
             <div class="alert alert-info mt-3">
@@ -119,18 +197,89 @@
 
            <?php if (isset($_SESSION['output_csv']) ) : ?>
 
-                    <div class="accordion-body text-center">
-                        <a href="<?php echo htmlspecialchars($_SESSION['output_csv']); ?>" class="btn btn-warning mb-3" download>Download Mapped File</a>
-                        <?php if(isset($_SESSION['bad_data'])) { ?>
-                        <a href="<?php echo htmlspecialchars($_SESSION['bad_data']); ?>" class="btn btn-success mb-3" download>Download Bad Data File</a>
-                        <?php  } ?> 
-                        <form method="post" action="process.php">
-                            <button type="submit" name="reset" class="btn btn-danger">Restart</button>
-                        </form>
-                    </div>
-                
 
-        <?php endif; ?>
+
+            <div class="accordion-body text-center">
+    <!-- Download Buttons -->
+    <div class="mb-4">
+        <a href="<?php echo htmlspecialchars($_SESSION['output_csv']); ?>" class="btn btn-warning btn-lg" download>
+            <i class="fas fa-download me-2"></i> Download Mapped File
+        </a>
+        <?php if (isset($_SESSION['bad_data'])) { ?>
+        <a href="<?php echo htmlspecialchars($_SESSION['bad_data']); ?>" class="btn btn-success btn-lg ms-3" download>
+            <i class="fas fa-exclamation-circle me-2"></i> Download Bad Data File
+        </a>
+        <?php } ?>
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="display: flex; justify-content: center; gap: 15px;">
+        <!-- Restart Button with Modal Trigger -->
+        <button type="button" class="btn btn-danger btn-lg d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#restartModal">
+            <i class="fas fa-redo-alt me-2"></i> Restart
+        </button>
+
+        <!-- Save Mapping Button with Modal Trigger -->
+        <button type="button" class="btn btn-primary btn-lg d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#saveMappingModal">
+            <i class="fas fa-save me-2"></i> Save Mapping
+        </button>
+    </div>
+</div>
+
+<!-- Modal for Confirmation (Restart) -->
+<div class="modal fade" id="restartModal" tabindex="-1" aria-labelledby="restartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="restartModalLabel">Confirm Restart</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to restart? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" action="process.php" style="margin: 0;">
+                    <button type="submit" name="reset" class="btn btn-danger">Restart</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Save Mapping -->
+<div class="modal fade" id="saveMappingModal" tabindex="-1" aria-labelledby="saveMappingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="saveMappingModalLabel">Save Mapping</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="saveMappingForm">
+                    <div class="mb-3">
+                        <label for="mapping_name" class="form-label">Enter a name for this mapping:</label>
+                        <input type="text" class="form-control" id="mapping_name" name="mapping_name" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </form>
+                <div id="ajaxResponse" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- JavaScript for AJAX -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+
+
+
+
+<?php endif; ?>
 
                
         
